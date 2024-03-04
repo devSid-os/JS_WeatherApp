@@ -6,14 +6,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Weather</title>
     <link rel="stylesheet" href="./output.css">
+    <style>
+        * {
+            /* font-family: cursive; */
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
 </head>
 
 <body class="bg-white dark:bg-[#121212]">
 
-    
-    
+    <!-- HEADER -->
+    <header>
+        <!-- NAVBAR -->
+        <nav
+            class="p-4 flex justify-between items-center shadow-md tracking-wider bg-[white] dark:bg-[#1f1f1f] md:px-8">
+            <!-- HEADING -->
+            <h1 class="select-none font-bold text-xl md:text-2xl dark:text-white">TaapMaan</h1>
+            <!-- INPUT DIV -->
+            <div class="flex items-center gap-4">
+                <!-- THEME BUTTON -->
+                <button title="switch to dark mode" id="themeBtn" type="button"
+                    class="fa-solid fa-sun text-sm dark:text-white"></button>
+                <!-- GPS BUTTON -->
+                <button class="fa-solid fa-location-crosshairs dark:text-white"></button>
+                <!-- INNER INPUT DIV -->
+                <div class="hidden relative items-stretch md:flex">
+                    <input
+                        class="p-1 px-2 text-sm rounded-tl-sm rounded-bl-sm focus:outline-none border-[1px] border-r-0 border-[#grey] tracking-wider dark:border-none"
+                        type="text" placeholder="Search Place">
+                    <button type="button" class="rounded-br-sm rounded-tr-sm fa-solid fa-magnifying-glass-location text-sm px-2 bg-[#F6F5F5]
+                        k dark:text-black dark:bg-white focus:outline-none"></button>
+                    <ul
+                        class="bg-[#fbfbfb] max-h-[130px] py-2 fle  x flex-col gap-1 overflow-y-auto absolute top-8 left-0 w-full dark:bg-[#1f1f1f] hidden">
+                        <li class="px-2 text-[13px] dark:text-white">Delhi India</li>
+                        <li class="px-2 text-[13px] dark:text-white">Delhi Canada</li>
+                        <li class="px-2 text-[13px] dark:text-white">Delhi India</li>
+                        <li class="px-2 text-[13px] dark:text-white">Delhi Canada</li>
+                        <li class="px-2 text-[13px] dark:text-white">Delhi India</li>
+                        <li class="px-2 text-[13px] dark:text-white">Delhi Canada</li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
 
     <script src="script.js"></script>
+    <script src="https://kit.fontawesome.com/f9d44ed34e.js" crossorigin="anonymous"></script>
 </body>
 
 </html>
