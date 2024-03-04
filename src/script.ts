@@ -1,6 +1,9 @@
+// HTML TAGS
 const themeBtn: HTMLElement = document.querySelector("#themeBtn")!;
 const htmlTag: HTMLElement = document.getElementsByTagName("html")[0];
+const searchPlaceInput: HTMLInputElement = document.querySelector("#searchPlaceInput")!;
 
+// ADD EVENT LISTENERS
 themeBtn.addEventListener("click", function () {
     if (htmlTag.classList.contains("dark")) {
         htmlTag.classList.remove("dark");
@@ -14,4 +17,5 @@ themeBtn.addEventListener("click", function () {
         themeBtn.classList.add("fa-moon");
         themeBtn.setAttribute("title", "switch to dark mode");
     }
-})
+});
+

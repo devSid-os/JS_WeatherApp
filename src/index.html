@@ -14,7 +14,7 @@
     </style>
 </head>
 
-<body class="bg-white dark:bg-[#121212]">
+<body class="bg-[#F6F5F5] dark:bg-[#121212]">
 
     <!-- HEADER -->
     <header>
@@ -27,17 +27,17 @@
             <div class="flex items-center gap-4">
                 <!-- THEME BUTTON -->
                 <button title="switch to dark mode" id="themeBtn" type="button"
-                    class="fa-solid fa-sun text-sm dark:text-white"></button>
+                    class="fa-solid fa-sun dark:text-white"></button>
                 <!-- GPS BUTTON -->
                 <button class="fa-solid fa-location-crosshairs dark:text-white"></button>
                 <!-- INNER INPUT DIV -->
                 <div class="hidden relative items-stretch md:flex">
-                    <input
+                    <input id="searchPlaceInput"
                         class="p-1 px-2 text-sm rounded-tl-sm rounded-bl-sm focus:outline-none border-[1px] border-r-0 border-[#grey] tracking-wider dark:border-none"
                         type="text" placeholder="Search Place">
                     <button type="button" class="rounded-br-sm rounded-tr-sm fa-solid fa-magnifying-glass-location text-sm px-2 bg-[#F6F5F5]
                         k dark:text-black dark:bg-white focus:outline-none"></button>
-                    <ul
+                    <!-- <ul
                         class="bg-[#fbfbfb] max-h-[130px] py-2 fle  x flex-col gap-1 overflow-y-auto absolute top-8 left-0 w-full dark:bg-[#1f1f1f] hidden">
                         <li class="px-2 text-[13px] dark:text-white">Delhi India</li>
                         <li class="px-2 text-[13px] dark:text-white">Delhi Canada</li>
@@ -45,11 +45,50 @@
                         <li class="px-2 text-[13px] dark:text-white">Delhi Canada</li>
                         <li class="px-2 text-[13px] dark:text-white">Delhi India</li>
                         <li class="px-2 text-[13px] dark:text-white">Delhi Canada</li>
-                    </ul>
+                    </ul> -->
                 </div>
             </div>
         </nav>
     </header>
+
+    <main class="px-4 w-full ml-auto mr-auto md:w-[95%]">
+        <!-- CURRENT WEATHER DIV -->
+        <div class="mt-4 flex justify-between items-stretch gap-4">
+            <div
+                class="p-4 tracking-wider rounded-sm flex flex-col justify-around items-center gap-2 bg-white dark:bg-[#1f1f1f]">
+                <p>Mostly Cloudy</p>
+                <img src="https://www.meteosource.com/static/img/ico/weather/13.svg" alt="">
+            </div>
+            <div class="p-4 flex-1 flex items-stretch justify-between overflow-x-auto rounded-sm shadow bg-[#fae469] md:px-8">
+                <div class="flex flex-col items-center justify-between tracking-wider gap-4">
+                    <p>Visibility</p>
+                    <i class="fa-solid fa-eye text-4xl"></i>
+                    <p class="text-sm">10km</p>
+                </div>
+                <div class="flex flex-col items-center justify-between tracking-wider gap-4">
+                    <p>Humidity</p>
+                    <i class="fa-solid fa-droplet text-4xl"></i>
+                    <p class="text-sm">20%</p>
+                </div>
+                <div class="flex flex-col items-center justify-between tracking-wider gap-4">
+                    <p>Wind Speed</p>
+                    <i class="fa-solid fa-wind text-4xl"></i>
+                    <p class="text-sm">16km/h</p>
+                </div>
+                <div class="flex flex-col items-center justify-between tracking-wider gap-4">
+                    <p>Visibility</p>
+                    <i class="fa-solid fa-gauge text-4xl"></i>
+                    <p class="text-sm">1014pa</p>
+                </div>
+            </div>
+            <!-- <div
+                class="p-4 tracking-wider rounded-sm flex flex-col justify-around items-center gap-2 bg-white dark:bg-[#1f1f1f]">
+                <p class="text-4xl md:text-5xl dark:text-white">23&deg;</p>
+                <p class="text-sm dark:text-white">Feels Like 22&deg;</p>
+            </div> -->
+        </div>
+
+    </main>
 
 
     <script src="script.js"></script>

@@ -1,5 +1,8 @@
+// HTML TAGS
 var themeBtn = document.querySelector("#themeBtn");
 var htmlTag = document.getElementsByTagName("html")[0];
+var searchPlaceInput = document.querySelector("#searchPlaceInput");
+// ADD EVENT LISTENERS
 themeBtn.addEventListener("click", function () {
     if (htmlTag.classList.contains("dark")) {
         htmlTag.classList.remove("dark");
