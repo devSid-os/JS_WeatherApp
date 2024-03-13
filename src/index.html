@@ -11,6 +11,24 @@
             /* font-family: cursive; */
             font-family: Arial, Helvetica, sans-serif;
         }
+
+        #loadingDiv {
+            animation: loader 1s ease-in-out infinite;
+        }
+
+        @keyframes loader {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 
@@ -39,334 +57,71 @@
                         k dark:text-black dark:bg-white focus:outline-none"></button>
                     <ul id="autoCompleteList"
                         class="bg-[#fbfbfb] max-h-[130px] py-2 fle  x flex-col gap-1 overflow-y-auto absolute top-8 left-0 w-full dark:bg-[#1f1f1f] hidden">
-                        <!-- <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi India</li>
-                        <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi Canada</li>
-                        <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi India</li>
-                        <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi Canada</li>
-                        <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi India</li>
-                        <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi Canada</li>
-                        <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi Canada</li>
-                        <li class="px-2 text-[13px] cursor-pointer hover:bg-[blue] hover:text-white dark:text-white">
-                            Delhi Canada</li> -->
+
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
     <!-- MAIN -->
-    <main class="w-full mt-8 px-4 flex flex-col gap-2 md:px-8">
-        <!-- CURRENT WEATHER DIV -->
-        <div class="flex justify-between items-center tracking-widest ">
-            <h4 id="placeNameHeading" class="font-bold text-sm md:text-[16px] dark:text-white">Delhi (India)</h4>
-            <p class="font-bold dark:text-white">07/03/2024</p>
+    <main class="">
+        <div id="loadingDiv" class="flex justify-center items-center h-[80vh] hidden">
+            <p class="text-center tracking-widest">Loading...</p>
         </div>
-        <div class="w-full flex items-stretch justify-center gap-4">
-            <div
-                class="p-4 flex flex-col items-center justify-around rounded-sm bg-white dark:bg-[#1f1f1f] md:px-8 dark:text-white">
-                <p id="currentStatus" class="text-wrap text-sm md:text-[16px] font-bold">Mostly Cloudy</p>
-                <img id="currentStatusImage" class="object-contain"
-                    src="https://www.meteosource.com/static/img/ico/weather/28.svg" alt="">
-                <p id="currentFeelsLike" class="text-[12px] md:text-sm">Feels Like: 29&deg;</p>
+        <div id="weatherDataDiv" class="w-full mt-8 px-4 flex flex-col gap-2 md:px-8">
+            <!-- CURRENT WEATHER DIV -->
+            <div class="flex justify-between items-center tracking-widest ">
+                <h4 id="placeNameHeading" class="font-bold text-sm md:text-[16px] dark:text-white">Delhi (India)</h4>
+                <p class="font-bold dark:text-white">07/03/2024</p>
             </div>
-            <div
-                class="p-4 flex-1 flex justify-between items-center gap-12 overflow-x-auto tracking-wider rounded-sm bg-[#fae469] md:gap-0 md:justify-around">
-                <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p id="currentTemperature" class="text-[12px] md:text-sm">24&deg;</p>
+            <div class="w-full flex items-stretch justify-center gap-4">
+                <div
+                    class="p-4 flex flex-col items-center justify-around rounded-sm bg-white dark:bg-[#1f1f1f] md:px-8 dark:text-white">
+                    <p id="currentStatus" class="text-wrap text-sm md:text-[16px] font-bold">Mostly Cloudy</p>
+                    <img id="currentStatusImage" class="object-contain"
+                        src="https://www.meteosource.com/static/img/ico/weather/28.svg" alt="">
+                    <p id="currentFeelsLike" class="text-[12px] md:text-sm">Feels Like: 29&deg;</p>
                 </div>
-                <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p id="currentVisibility" class="text-[12px] md:text-sm">10km</p>
-                </div>
-                <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p id="currentHumidity" class="text-[12px] md:text-sm">10%</p>
-                </div>
-                <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p id="currentWindSpeed" class="text-[12px]  md:text-sm">115km/h</p>
-                </div>
-                <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p id="currentAirPressure" class="text-[12px]  tmd:ext-sm">1010 hPa</p>
-                </div>
-            </div>
-        </div>
-        <!-- HOURLY WEATHER -->
-        <h4 class="font-bold tracking-widest mt-4 dark:text-white">Hourly Weather</h4>
-        <div id="hourlyWeatherDiv"
-            class="p-4 flex justify-between items-stretch gap-12 overflow-x-auto bg-white dark:bg-[#1f1f1f] md:gap-0 md:justify-around dark:text-white">
-            <!-- <div class="flex flex-col justify-between items-center gap-2">
-                <p class="text-[11px] text-center md:text-sm font-bold">9:00 AM</p>
-                <img src="https://www.meteosource.com/static/img/ico/weather/2.svg" alt="">
-                <p class="text-[11px] md:text-sm">33&deg;</p>
-            </div>
-            <div class="flex flex-col justify-between items-center gap-2">
-                <p class="text-[11px] text-center md:text-sm font-bold">9:00 AM</p>
-                <img src="https://www.meteosource.com/static/img/ico/weather/4.svg" alt="">
-                <p class="text-[11px] md:text-sm">33&deg;</p>
-            </div>
-            <div class="flex flex-col justify-between items-center gap-2">
-                <p class="text-[11px] text-center md:text-sm font-bold">9:00 AM</p>
-                <img src="https://www.meteosource.com/static/img/ico/weather/6.svg" alt="">
-                <p class="text-[11px] md:text-sm">33&deg;</p>
-            </div>
-            <div class="flex flex-col justify-between items-center gap-2">
-                <p class="text-[11px] text-center md:text-sm font-bold">9:00 AM</p>
-                <img src="https://www.meteosource.com/static/img/ico/weather/8.svg" alt="">
-                <p class="text-[11px] md:text-sm">33&deg;</p>
-            </div>
-            <div class="flex flex-col justify-between items-center gap-2">
-                <p class="text-[11px] text-center md:text-sm font-bold">9:00 AM</p>
-                <img src="https://www.meteosource.com/static/img/ico/weather/10.svg" alt="">
-                <p class="text-[11px] md:text-sm">33&deg;</p>
-            </div>
-            <div class="flex flex-col justify-between items-center gap-2">
-                <p class="text-[11px] text-center md:text-sm font-bold">9:00 AM</p>
-                <img src="https://www.meteosource.com/static/img/ico/weather/12.svg" alt="">
-                <p class="text-[11px] md:text-sm">33&deg;</p>
-            </div> -->
-        </div>
-        <!-- 7 FORECAST DAYS -->
-        <h4 class="font-bold tracking-widest mt-4 dark:text-white">Forecast (7 days)</h4>
-        <div id="dailyWeatherDiv" class="flex flex-col items-stretch justify-between gap-4">
-            <!-- <div
-                class="tracking-widest p-4 text-center flex justify-between items-stretch py-8 overflow-x-auto gap-12 md:gap-4 bg-white dark:bg-[#1f1f1f] dark:text-white md:justify-around">
-                <div class="flex flex-col justify-around items-center gap-2 md:justify-center">
-                    <img class="object-cover" src="https://www.meteosource.com/static/img/ico/weather/1.svg" alt="">
-                    <p class="text-[10px] md:text-sm">Feels Like 27&deg;</p>
-                    <p class="text-[10px] md:text-sm">13/03/2024</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p class="text-sm">28&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p class="text-sm">10km</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p class="text-sm">23%</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p class="text-sm">11km/h</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p class="text-sm">1015 hPa</p>
-                </div>
-            </div> -->
-            <!-- <div
-                class="tracking-widest p-4 text-center flex justify-between items-stretch py-8 overflow-x-auto gap-12 md:gap-4 bg-white dark:bg-[#1f1f1f] dark:text-white md:justify-around">
-                <div class="flex flex-col justify-around items-center gap-2 md:justify-center">
-                    <img class="object-cover" src="https://www.meteosource.com/static/img/ico/weather/1.svg" alt="">
-                    <p class="text-[10px] md:text-sm">Feels Like 27&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p class="text-sm">28&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p class="text-sm">10km</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p class="text-sm">23%</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p class="text-sm">11km/h</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p class="text-sm">1015 hPa</p>
+                <div
+                    class="p-4 flex-1 flex justify-between items-center gap-12 overflow-x-auto tracking-wider rounded-sm bg-[#fae469] md:gap-0 md:justify-around">
+                    <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
+                        <p class="text-sm">Temperature</p>
+                        <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
+                        <p id="currentTemperature" class="text-[12px] md:text-sm">24&deg;</p>
+                    </div>
+                    <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
+                        <p class="text-sm">Visibility</p>
+                        <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
+                        <p id="currentVisibility" class="text-[12px] md:text-sm">10km</p>
+                    </div>
+                    <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
+                        <p class="text-sm">Humidity</p>
+                        <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
+                        <p id="currentHumidity" class="text-[12px] md:text-sm">10%</p>
+                    </div>
+                    <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
+                        <p class="text-sm">Wind Speed</p>
+                        <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
+                        <p id="currentWindSpeed" class="text-[12px]  md:text-sm">115km/h</p>
+                    </div>
+                    <div class="flex flex-col text-center justify-between items-center gap-4 h-full">
+                        <p class="text-sm">Air Pressure</p>
+                        <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
+                        <p id="currentAirPressure" class="text-[12px]  tmd:ext-sm">1010 hPa</p>
+                    </div>
                 </div>
             </div>
-            <div
-                class="tracking-widest p-4 text-center flex justify-between items-stretch py-8 overflow-x-auto gap-12 md:gap-4 bg-white dark:bg-[#1f1f1f] dark:text-white md:justify-around">
-                <div class="flex flex-col justify-around items-center gap-2 md:justify-center">
-                    <img class="object-cover" src="https://www.meteosource.com/static/img/ico/weather/1.svg" alt="">
-                    <p class="text-[10px] md:text-sm">Feels Like 27&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p class="text-sm">28&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p class="text-sm">10km</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p class="text-sm">23%</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p class="text-sm">11km/h</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p class="text-sm">1015 hPa</p>
-                </div>
+            <!-- HOURLY WEATHER -->
+            <h4 class="font-bold tracking-widest mt-4 dark:text-white">Hourly Weather</h4>
+            <div id="hourlyWeatherDiv"
+                class="p-4 flex justify-between items-stretch gap-12 overflow-x-auto bg-white dark:bg-[#1f1f1f] md:gap-0 md:justify-around dark:text-white">
+
             </div>
-            <div
-                class="tracking-widest p-4 text-center flex justify-between items-stretch py-8 overflow-x-auto gap-12 md:gap-4 bg-white dark:bg-[#1f1f1f] dark:text-white md:justify-around">
-                <div class="flex flex-col justify-around items-center gap-2 md:justify-center">
-                    <img class="object-cover" src="https://www.meteosource.com/static/img/ico/weather/1.svg" alt="">
-                    <p class="text-[10px] md:text-sm">Feels Like 27&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p class="text-sm">28&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p class="text-sm">10km</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p class="text-sm">23%</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p class="text-sm">11km/h</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p class="text-sm">1015 hPa</p>
-                </div>
+            <!-- 7 FORECAST DAYS -->
+            <h4 class="font-bold tracking-widest mt-4 dark:text-white">Forecast (7 days)</h4>
+            <div id="dailyWeatherDiv" class="flex flex-col items-stretch justify-between gap-4">
+
             </div>
-            <div
-                class="tracking-widest p-4 text-center flex justify-between items-stretch py-8 overflow-x-auto gap-12 md:gap-4 bg-white dark:bg-[#1f1f1f] dark:text-white md:justify-around">
-                <div class="flex flex-col justify-around items-center gap-2 md:justify-center">
-                    <img class="object-cover" src="https://www.meteosource.com/static/img/ico/weather/1.svg" alt="">
-                    <p class="text-[10px] md:text-sm">Feels Like 27&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p class="text-sm">28&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p class="text-sm">10km</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p class="text-sm">23%</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p class="text-sm">11km/h</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p class="text-sm">1015 hPa</p>
-                </div>
-            </div>
-            <div
-                class="tracking-widest p-4 text-center flex justify-between items-stretch py-8 overflow-x-auto gap-12 md:gap-4 bg-white dark:bg-[#1f1f1f] dark:text-white md:justify-around">
-                <div class="flex flex-col justify-around items-center gap-2 md:justify-center">
-                    <img class="object-cover" src="https://www.meteosource.com/static/img/ico/weather/1.svg" alt="">
-                    <p class="text-[10px] md:text-sm">Feels Like 27&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p class="text-sm">28&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p class="text-sm">10km</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p class="text-sm">23%</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p class="text-sm">11km/h</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p class="text-sm">1015 hPa</p>
-                </div>
-            </div>
-            <div
-                class="tracking-widest p-4 text-center flex justify-between items-stretch py-8 overflow-x-auto gap-12 md:gap-4 bg-white dark:bg-[#1f1f1f] dark:text-white md:justify-around">
-                <div class="flex flex-col justify-around items-center gap-2 md:justify-center">
-                    <img class="object-cover" src="https://www.meteosource.com/static/img/ico/weather/1.svg" alt="">
-                    <p class="text-[10px] md:text-sm">Feels Like 27&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Temperature</p>
-                    <i class="fa-solid fa-temperature-three-quarters text-2xl md:text-4xl"></i>
-                    <p class="text-sm">28&deg;</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Visibility</p>
-                    <i class="fa-solid fa-eye text-2xl md:text-4xl"></i>
-                    <p class="text-sm">10km</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Humidity</p>
-                    <i class="fa-solid fa-droplet text-2xl md:text-4xl"></i>
-                    <p class="text-sm">23%</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Wind Speed</p>
-                    <i class="fa-solid fa-wind text-2xl md:text-4xl"></i>
-                    <p class="text-sm">11km/h</p>
-                </div>
-                <div class="flex flex-col justify-between items-center gap-4">
-                    <p class="text-sm">Air Pressure</p>
-                    <i class="fa-solid fa-gauge text-2xl md:text-4xl"></i>
-                    <p class="text-sm">1015 hPa</p>
-                </div>
-            </div> -->
         </div>
     </main>
 

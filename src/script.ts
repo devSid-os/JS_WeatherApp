@@ -7,6 +7,8 @@ const autoCompleteList: HTMLElement = document.querySelector("#autoCompleteList"
 const placeNameHeading: HTMLElement = document.querySelector("#placeNameHeading")!;
 const hourlyWeatherDiv: HTMLElement = document.querySelector("#hourlyWeatherDiv")!;
 const dailyWeatherDiv: HTMLElement = document.querySelector("#dailyWeatherDiv")!;
+const weatherDataDiv: HTMLElement = document.querySelector("#weatherDataDiv")!;
+const loadingDiv: HTMLElement = document.querySelector("#loadingDiv")!;
 // CURRENT WEATHER HTML TAGS
 const currentStatus: HTMLElement = document.querySelector("#currentStatus")!;
 const currentStatusImage: HTMLImageElement = document.querySelector("#currentStatusImage")!;
@@ -41,25 +43,29 @@ interface CurrentWeatherData {
 }
 
 // CUSTOM VARIABLES
-var timer: any;
+var loading: boolean = false;
+var timer: number;
 const headers = {
     'X-RapidAPI-Key': '3f1489736emsh7eec37b2c32c379p1aece3jsn609ca33e195e',
     'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
 }
 
 // CUSTOM FUNCTIONS
-function clearAutoCompleteList() {
+function clearAutoCompleteList(): void {
     while (autoCompleteList.firstChild) autoCompleteList.removeChild(autoCompleteList.firstChild);
     autoCompleteList.classList.add("hidden");
 }
 
-function clearHourlyWeatherData() {
+function clearHourlyWeatherData(): void {
     while (hourlyWeatherDiv.firstChild) hourlyWeatherDiv.removeChild(hourlyWeatherDiv.firstChild);
 }
 
-function fetch7DayWeatherData(lat: string, lon: string) {
+function clear7DayWeatherData(): void {
+    while (dailyWeatherDiv.firstChild) dailyWeatherDiv.removeChild(dailyWeatherDiv.firstChild);
+}
+
+function fetch7DayWeatherData(lat: string, lon: string): void {
     const url = `https://ai-weather-by-meteosource.p.rapidapi.com/daily?lat=${lat}&lon=${lon}&language=en&units=auto`;
-    console.log("first")
     fetch(url, {
         method: 'GET',
         headers
@@ -74,7 +80,7 @@ function fetch7DayWeatherData(lat: string, lon: string) {
                     const statusFeelsLikePara: HTMLElement = document.createElement("p");
                     const statusDatePara: HTMLElement = document.createElement("p");
                     parentDiv.classList.add("tracking-widest", "p-4", "text-center", "flex", "justify-between", "items-stretch", "py-8", "overflow-x-auto", "gap-12", "md:gap-4", "bg-white", "dark:bg-[#1f1f1f]", "dark:text-white", "md:justify-around");
-                    statusDiv.classList.add("flex", "flex-col", "justify-around", "items-center", "gap-2", "md:justify-center");
+                    statusDiv.classList.add("flex-1", "flex", "flex-col", "justify-around", "items-center", "gap-2", "md:justify-center");
                     statusImg.src = `https://www.meteosource.com/static/img/ico/weather/${day.icon}.svg`;
                     statusFeelsLikePara.innerHTML = `Feels Like ${day.feels_like}&deg;`;
                     const d = new Date(day.day);
@@ -91,7 +97,7 @@ function fetch7DayWeatherData(lat: string, lon: string) {
                     const temperatureHeading: HTMLElement = document.createElement("p");
                     const temperatureIcon: HTMLElement = document.createElement("i");
                     const temperaturePara: HTMLElement = document.createElement("p");
-                    temperatureDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    temperatureDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                     temperatureHeading.classList.add("text-sm");
                     temperaturePara.classList.add("text-sm");
                     temperatureHeading.textContent = "Temperature";
@@ -107,12 +113,12 @@ function fetch7DayWeatherData(lat: string, lon: string) {
                     const visibilityHeading: HTMLElement = document.createElement("p");
                     const visibilityIcon: HTMLElement = document.createElement("i");
                     const visibilityPara: HTMLElement = document.createElement("p");
-                    visibilityDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    visibilityDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                     visibilityHeading.classList.add("text-sm");
                     visibilityPara.classList.add("text-sm");
                     visibilityHeading.textContent = "Visibility";
                     visibilityIcon.classList.add("fa-solid", "fa-eye", "text-2xl", "md:text-4xl");
-                    visibilityPara.innerHTML = `${day.visibility}&deg;`;
+                    visibilityPara.textContent = `${day.visibility}km`;
                     visibilityDiv.appendChild(visibilityHeading);
                     visibilityDiv.appendChild(visibilityIcon);
                     visibilityDiv.appendChild(visibilityPara);
@@ -124,12 +130,12 @@ function fetch7DayWeatherData(lat: string, lon: string) {
                     const humidityHeading: HTMLElement = document.createElement("p");
                     const humidityIcon: HTMLElement = document.createElement("i");
                     const humidityPara: HTMLElement = document.createElement("p");
-                    humidityDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    humidityDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                     humidityHeading.classList.add("text-sm");
                     humidityPara.classList.add("text-sm");
                     humidityHeading.textContent = "Humidity";
                     humidityIcon.classList.add("fa-solid", "fa-droplet", "text-2xl", "md:text-4xl");
-                    humidityPara.innerHTML = `${day.humidity}&deg;`;
+                    humidityPara.textContent = `${day.humidity}%`;
                     humidityDiv.appendChild(humidityHeading);
                     humidityDiv.appendChild(humidityIcon);
                     humidityDiv.appendChild(humidityPara);
@@ -141,12 +147,12 @@ function fetch7DayWeatherData(lat: string, lon: string) {
                     const windSpeedHeading: HTMLElement = document.createElement("p");
                     const windSpeedIcon: HTMLElement = document.createElement("i");
                     const windSpeedPara: HTMLElement = document.createElement("p");
-                    windSpeedDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    windSpeedDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                     windSpeedHeading.classList.add("text-sm");
                     windSpeedPara.classList.add("text-sm");
                     windSpeedHeading.textContent = "Wind Speed";
                     windSpeedIcon.classList.add("fa-solid", "fa-wind", "text-2xl", "md:text-4xl");
-                    windSpeedPara.innerHTML = `${day.wind.speed}&deg;`;
+                    windSpeedPara.textContent = `${day.wind.speed}km/h`;
                     windSpeedDiv.appendChild(windSpeedHeading);
                     windSpeedDiv.appendChild(windSpeedIcon);
                     windSpeedDiv.appendChild(windSpeedPara);
@@ -158,25 +164,27 @@ function fetch7DayWeatherData(lat: string, lon: string) {
                     const airPressureHeading: HTMLElement = document.createElement("p");
                     const airPressureIcon: HTMLElement = document.createElement("i");
                     const airPressurePara: HTMLElement = document.createElement("p");
-                    airPressureDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    airPressureDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                     airPressureHeading.classList.add("text-sm");
                     airPressurePara.classList.add("text-sm");
                     airPressureHeading.textContent = "Air Pressure";
                     airPressureIcon.classList.add("fa-solid", "fa-gauge", "text-2xl", "md:text-4xl");
-                    airPressurePara.innerHTML = `${day.pressure}&deg;`;
+                    airPressurePara.textContent = `${day.pressure}hPa`;
                     airPressureDiv.appendChild(airPressureHeading);
                     airPressureDiv.appendChild(airPressureIcon);
                     airPressureDiv.appendChild(airPressurePara);
                     parentDiv.appendChild(airPressureDiv);
                     dailyWeatherDiv.appendChild(parentDiv);
+                    loading = false;
                 }
             })
         })
         .catch(error => console.log(error));
 }
 
-function fetchHourlyWeatherData(lat: string, lon: string) {
+function fetchHourlyWeatherData(lat: string, lon: string): void {
     clearHourlyWeatherData();
+    clear7DayWeatherData();
     const url = `https://ai-weather-by-meteosource.p.rapidapi.com/hourly?lat=${lat}&lon=${lon}&timezone=auto&language=en&units=auto`;
     fetch(url, {
         method: "GET",
@@ -209,7 +217,7 @@ function fetchHourlyWeatherData(lat: string, lon: string) {
     fetch7DayWeatherData(lat, lon);
 }
 
-function fetchCurrentWeatherData(lat: string, lon: string) {
+function fetchCurrentWeatherData(lat: string, lon: string): void {
     const url = `https://ai-weather-by-meteosource.p.rapidapi.com/current?lat=${lat}&lon=${lon}&timezone=auto&language=en&units=auto`;
     fetch(url, {
         method: "GET",
@@ -230,8 +238,8 @@ function fetchCurrentWeatherData(lat: string, lon: string) {
         .catch(error => console.log(error))
 }
 
-function fetchWeatherData(lat: string, lon: string) {
-
+function fetchWeatherData(lat: string, lon: string): void {
+    loading = true;
     fetchCurrentWeatherData(lat, lon);
 }
 
@@ -281,8 +289,6 @@ themeBtn.addEventListener("click", function (): void {
     }
 });
 
-
-
 searchPlaceInput.addEventListener("keyup", function (e: KeyboardEvent): void {
     clearTimeout(timer);
     timer = setTimeout(() => {
@@ -300,3 +306,14 @@ window.addEventListener("keyup", function (e: KeyboardEvent): void {
     if (e.key === 'Escape')
         if (!autoCompleteList.classList.contains("hidden")) autoCompleteList.classList.add("hidden");
 })
+
+setInterval((): void => {
+    if (loading === true) {
+        weatherDataDiv.classList.add("hidden");
+        loadingDiv.classList.remove("hidden");
+    }
+    else {
+        weatherDataDiv.classList.remove("hidden");
+        loadingDiv.classList.add("hidden");
+    }
+}, 50)

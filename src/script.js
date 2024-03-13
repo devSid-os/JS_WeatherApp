@@ -7,6 +7,8 @@ var autoCompleteList = document.querySelector("#autoCompleteList");
 var placeNameHeading = document.querySelector("#placeNameHeading");
 var hourlyWeatherDiv = document.querySelector("#hourlyWeatherDiv");
 var dailyWeatherDiv = document.querySelector("#dailyWeatherDiv");
+var weatherDataDiv = document.querySelector("#weatherDataDiv");
+var loadingDiv = document.querySelector("#loadingDiv");
 // CURRENT WEATHER HTML TAGS
 var currentStatus = document.querySelector("#currentStatus");
 var currentStatusImage = document.querySelector("#currentStatusImage");
@@ -17,6 +19,7 @@ var currentHumidity = document.querySelector("#currentHumidity");
 var currentWindSpeed = document.querySelector("#currentWindSpeed");
 var currentAirPressure = document.querySelector("#currentAirPressure");
 // CUSTOM VARIABLES
+var loading = false;
 var timer;
 var headers = {
     'X-RapidAPI-Key': '3f1489736emsh7eec37b2c32c379p1aece3jsn609ca33e195e',
@@ -32,9 +35,12 @@ function clearHourlyWeatherData() {
     while (hourlyWeatherDiv.firstChild)
         hourlyWeatherDiv.removeChild(hourlyWeatherDiv.firstChild);
 }
+function clear7DayWeatherData() {
+    while (dailyWeatherDiv.firstChild)
+        dailyWeatherDiv.removeChild(dailyWeatherDiv.firstChild);
+}
 function fetch7DayWeatherData(lat, lon) {
     var url = "https://ai-weather-by-meteosource.p.rapidapi.com/daily?lat=".concat(lat, "&lon=").concat(lon, "&language=en&units=auto");
-    console.log("first");
     fetch(url, {
         method: 'GET',
         headers: headers
@@ -49,7 +55,7 @@ function fetch7DayWeatherData(lat, lon) {
                 var statusFeelsLikePara = document.createElement("p");
                 var statusDatePara = document.createElement("p");
                 parentDiv.classList.add("tracking-widest", "p-4", "text-center", "flex", "justify-between", "items-stretch", "py-8", "overflow-x-auto", "gap-12", "md:gap-4", "bg-white", "dark:bg-[#1f1f1f]", "dark:text-white", "md:justify-around");
-                statusDiv.classList.add("flex", "flex-col", "justify-around", "items-center", "gap-2", "md:justify-center");
+                statusDiv.classList.add("flex-1", "flex", "flex-col", "justify-around", "items-center", "gap-2", "md:justify-center");
                 statusImg.src = "https://www.meteosource.com/static/img/ico/weather/".concat(day.icon, ".svg");
                 statusFeelsLikePara.innerHTML = "Feels Like ".concat(day.feels_like, "&deg;");
                 var d = new Date(day.day);
@@ -65,7 +71,7 @@ function fetch7DayWeatherData(lat, lon) {
                 var temperatureHeading = document.createElement("p");
                 var temperatureIcon = document.createElement("i");
                 var temperaturePara = document.createElement("p");
-                temperatureDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                temperatureDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                 temperatureHeading.classList.add("text-sm");
                 temperaturePara.classList.add("text-sm");
                 temperatureHeading.textContent = "Temperature";
@@ -80,12 +86,12 @@ function fetch7DayWeatherData(lat, lon) {
                 var visibilityHeading = document.createElement("p");
                 var visibilityIcon = document.createElement("i");
                 var visibilityPara = document.createElement("p");
-                visibilityDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                visibilityDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                 visibilityHeading.classList.add("text-sm");
                 visibilityPara.classList.add("text-sm");
                 visibilityHeading.textContent = "Visibility";
                 visibilityIcon.classList.add("fa-solid", "fa-eye", "text-2xl", "md:text-4xl");
-                visibilityPara.innerHTML = "".concat(day.visibility, "&deg;");
+                visibilityPara.textContent = "".concat(day.visibility, "km");
                 visibilityDiv.appendChild(visibilityHeading);
                 visibilityDiv.appendChild(visibilityIcon);
                 visibilityDiv.appendChild(visibilityPara);
@@ -96,12 +102,12 @@ function fetch7DayWeatherData(lat, lon) {
                 var humidityHeading = document.createElement("p");
                 var humidityIcon = document.createElement("i");
                 var humidityPara = document.createElement("p");
-                humidityDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                humidityDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                 humidityHeading.classList.add("text-sm");
                 humidityPara.classList.add("text-sm");
                 humidityHeading.textContent = "Humidity";
                 humidityIcon.classList.add("fa-solid", "fa-droplet", "text-2xl", "md:text-4xl");
-                humidityPara.innerHTML = "".concat(day.humidity, "&deg;");
+                humidityPara.textContent = "".concat(day.humidity, "%");
                 humidityDiv.appendChild(humidityHeading);
                 humidityDiv.appendChild(humidityIcon);
                 humidityDiv.appendChild(humidityPara);
@@ -112,12 +118,12 @@ function fetch7DayWeatherData(lat, lon) {
                 var windSpeedHeading = document.createElement("p");
                 var windSpeedIcon = document.createElement("i");
                 var windSpeedPara = document.createElement("p");
-                windSpeedDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                windSpeedDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                 windSpeedHeading.classList.add("text-sm");
                 windSpeedPara.classList.add("text-sm");
                 windSpeedHeading.textContent = "Wind Speed";
                 windSpeedIcon.classList.add("fa-solid", "fa-wind", "text-2xl", "md:text-4xl");
-                windSpeedPara.innerHTML = "".concat(day.wind.speed, "&deg;");
+                windSpeedPara.textContent = "".concat(day.wind.speed, "km/h");
                 windSpeedDiv.appendChild(windSpeedHeading);
                 windSpeedDiv.appendChild(windSpeedIcon);
                 windSpeedDiv.appendChild(windSpeedPara);
@@ -128,23 +134,25 @@ function fetch7DayWeatherData(lat, lon) {
                 var airPressureHeading = document.createElement("p");
                 var airPressureIcon = document.createElement("i");
                 var airPressurePara = document.createElement("p");
-                airPressureDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                airPressureDiv.classList.add("flex-1", "flex", "flex-col", "justify-between", "items-center", "gap-4");
                 airPressureHeading.classList.add("text-sm");
                 airPressurePara.classList.add("text-sm");
                 airPressureHeading.textContent = "Air Pressure";
                 airPressureIcon.classList.add("fa-solid", "fa-gauge", "text-2xl", "md:text-4xl");
-                airPressurePara.innerHTML = "".concat(day.pressure, "&deg;");
+                airPressurePara.textContent = "".concat(day.pressure, "hPa");
                 airPressureDiv.appendChild(airPressureHeading);
                 airPressureDiv.appendChild(airPressureIcon);
                 airPressureDiv.appendChild(airPressurePara);
                 parentDiv.appendChild(airPressureDiv);
                 dailyWeatherDiv.appendChild(parentDiv);
+                loading = false;
             }
         });
     })["catch"](function (error) { return console.log(error); });
 }
 function fetchHourlyWeatherData(lat, lon) {
     clearHourlyWeatherData();
+    clear7DayWeatherData();
     var url = "https://ai-weather-by-meteosource.p.rapidapi.com/hourly?lat=".concat(lat, "&lon=").concat(lon, "&timezone=auto&language=en&units=auto");
     fetch(url, {
         method: "GET",
@@ -194,6 +202,7 @@ function fetchCurrentWeatherData(lat, lon) {
     })["catch"](function (error) { return console.log(error); });
 }
 function fetchWeatherData(lat, lon) {
+    loading = true;
     fetchCurrentWeatherData(lat, lon);
 }
 function rendorAutoCompleteList(places) {
@@ -256,3 +265,13 @@ window.addEventListener("keyup", function (e) {
         if (!autoCompleteList.classList.contains("hidden"))
             autoCompleteList.classList.add("hidden");
 });
+setInterval(function () {
+    if (loading === true) {
+        weatherDataDiv.classList.add("hidden");
+        loadingDiv.classList.remove("hidden");
+    }
+    else {
+        weatherDataDiv.classList.remove("hidden");
+        loadingDiv.classList.add("hidden");
+    }
+}, 50);
