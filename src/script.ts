@@ -5,7 +5,8 @@ const searchPlaceInput: HTMLInputElement = document.querySelector("#searchPlaceI
 const searchBtn: HTMLElement = document.querySelector("#searchBtn")!;
 const autoCompleteList: HTMLElement = document.querySelector("#autoCompleteList")!;
 const placeNameHeading: HTMLElement = document.querySelector("#placeNameHeading")!;
-const hourlyWeatherDiv: HTMLElement = document.querySelector("#hourlyWeatherDiv");
+const hourlyWeatherDiv: HTMLElement = document.querySelector("#hourlyWeatherDiv")!;
+const dailyWeatherDiv: HTMLElement = document.querySelector("#dailyWeatherDiv")!;
 // CURRENT WEATHER HTML TAGS
 const currentStatus: HTMLElement = document.querySelector("#currentStatus")!;
 const currentStatusImage: HTMLImageElement = document.querySelector("#currentStatusImage")!;
@@ -47,7 +48,135 @@ const headers = {
 }
 
 // CUSTOM FUNCTIONS
+function clearAutoCompleteList() {
+    while (autoCompleteList.firstChild) autoCompleteList.removeChild(autoCompleteList.firstChild);
+    autoCompleteList.classList.add("hidden");
+}
+
+function clearHourlyWeatherData() {
+    while (hourlyWeatherDiv.firstChild) hourlyWeatherDiv.removeChild(hourlyWeatherDiv.firstChild);
+}
+
+function fetch7DayWeatherData(lat: string, lon: string) {
+    const url = `https://ai-weather-by-meteosource.p.rapidapi.com/daily?lat=${lat}&lon=${lon}&language=en&units=auto`;
+    console.log("first")
+    fetch(url, {
+        method: 'GET',
+        headers
+    })
+        .then(response => response.json())
+        .then(data => {
+            data.daily.data.map((day, index: number) => {
+                if (index < 7) {
+                    const parentDiv: HTMLElement = document.createElement("div");
+                    const statusDiv: HTMLElement = document.createElement("div");
+                    const statusImg: HTMLImageElement = document.createElement("img");
+                    const statusFeelsLikePara: HTMLElement = document.createElement("p");
+                    const statusDatePara: HTMLElement = document.createElement("p");
+                    parentDiv.classList.add("tracking-widest", "p-4", "text-center", "flex", "justify-between", "items-stretch", "py-8", "overflow-x-auto", "gap-12", "md:gap-4", "bg-white", "dark:bg-[#1f1f1f]", "dark:text-white", "md:justify-around");
+                    statusDiv.classList.add("flex", "flex-col", "justify-around", "items-center", "gap-2", "md:justify-center");
+                    statusImg.src = `https://www.meteosource.com/static/img/ico/weather/${day.icon}.svg`;
+                    statusFeelsLikePara.innerHTML = `Feels Like ${day.feels_like}&deg;`;
+                    const d = new Date(day.day);
+                    statusDatePara.textContent = `${d.getDate() < 10 ? '0' : ''}${d.getDate().toString()}-${d.getMonth() < 10 ? '0' : ''}${d.getMonth()}-${d.getFullYear()}`;
+                    statusFeelsLikePara.classList.add("text-[10px]", "md:text-sm");
+                    statusDatePara.classList.add("text-[10px]", "md:text-sm");
+                    statusDiv.appendChild(statusImg);
+                    statusDiv.appendChild(statusFeelsLikePara);
+                    statusDiv.appendChild(statusDatePara);
+                    parentDiv.appendChild(statusDiv);
+
+                    // TEMPERATURE DIV DOM CODE
+                    const temperatureDiv: HTMLElement = document.createElement("div");
+                    const temperatureHeading: HTMLElement = document.createElement("p");
+                    const temperatureIcon: HTMLElement = document.createElement("i");
+                    const temperaturePara: HTMLElement = document.createElement("p");
+                    temperatureDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    temperatureHeading.classList.add("text-sm");
+                    temperaturePara.classList.add("text-sm");
+                    temperatureHeading.textContent = "Temperature";
+                    temperatureIcon.classList.add("fa-solid", "fa-temperature-three-quarters", "text-2xl", "md:text-4xl");
+                    temperaturePara.innerHTML = `${day.temperature}&deg;`;
+                    temperatureDiv.appendChild(temperatureHeading);
+                    temperatureDiv.appendChild(temperatureIcon);
+                    temperatureDiv.appendChild(temperaturePara);
+                    parentDiv.appendChild(temperatureDiv);
+
+                    // VISIBILITY DIV DOM CODE
+                    const visibilityDiv: HTMLElement = document.createElement("div");
+                    const visibilityHeading: HTMLElement = document.createElement("p");
+                    const visibilityIcon: HTMLElement = document.createElement("i");
+                    const visibilityPara: HTMLElement = document.createElement("p");
+                    visibilityDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    visibilityHeading.classList.add("text-sm");
+                    visibilityPara.classList.add("text-sm");
+                    visibilityHeading.textContent = "Visibility";
+                    visibilityIcon.classList.add("fa-solid", "fa-eye", "text-2xl", "md:text-4xl");
+                    visibilityPara.innerHTML = `${day.visibility}&deg;`;
+                    visibilityDiv.appendChild(visibilityHeading);
+                    visibilityDiv.appendChild(visibilityIcon);
+                    visibilityDiv.appendChild(visibilityPara);
+                    parentDiv.appendChild(visibilityDiv);
+                    dailyWeatherDiv.appendChild(parentDiv);
+
+                    // HUMIDITY DIV DOM CODE
+                    const humidityDiv: HTMLElement = document.createElement("div");
+                    const humidityHeading: HTMLElement = document.createElement("p");
+                    const humidityIcon: HTMLElement = document.createElement("i");
+                    const humidityPara: HTMLElement = document.createElement("p");
+                    humidityDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    humidityHeading.classList.add("text-sm");
+                    humidityPara.classList.add("text-sm");
+                    humidityHeading.textContent = "Humidity";
+                    humidityIcon.classList.add("fa-solid", "fa-droplet", "text-2xl", "md:text-4xl");
+                    humidityPara.innerHTML = `${day.humidity}&deg;`;
+                    humidityDiv.appendChild(humidityHeading);
+                    humidityDiv.appendChild(humidityIcon);
+                    humidityDiv.appendChild(humidityPara);
+                    parentDiv.appendChild(humidityDiv);
+                    dailyWeatherDiv.appendChild(parentDiv);
+
+                    // WIND SPEED DIV DOM CODE
+                    const windSpeedDiv: HTMLElement = document.createElement("div");
+                    const windSpeedHeading: HTMLElement = document.createElement("p");
+                    const windSpeedIcon: HTMLElement = document.createElement("i");
+                    const windSpeedPara: HTMLElement = document.createElement("p");
+                    windSpeedDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    windSpeedHeading.classList.add("text-sm");
+                    windSpeedPara.classList.add("text-sm");
+                    windSpeedHeading.textContent = "Wind Speed";
+                    windSpeedIcon.classList.add("fa-solid", "fa-wind", "text-2xl", "md:text-4xl");
+                    windSpeedPara.innerHTML = `${day.wind.speed}&deg;`;
+                    windSpeedDiv.appendChild(windSpeedHeading);
+                    windSpeedDiv.appendChild(windSpeedIcon);
+                    windSpeedDiv.appendChild(windSpeedPara);
+                    parentDiv.appendChild(windSpeedDiv);
+                    dailyWeatherDiv.appendChild(parentDiv);
+
+                    // AIR PRESSURE DIV DOM CODE
+                    const airPressureDiv: HTMLElement = document.createElement("div");
+                    const airPressureHeading: HTMLElement = document.createElement("p");
+                    const airPressureIcon: HTMLElement = document.createElement("i");
+                    const airPressurePara: HTMLElement = document.createElement("p");
+                    airPressureDiv.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-4");
+                    airPressureHeading.classList.add("text-sm");
+                    airPressurePara.classList.add("text-sm");
+                    airPressureHeading.textContent = "Air Pressure";
+                    airPressureIcon.classList.add("fa-solid", "fa-gauge", "text-2xl", "md:text-4xl");
+                    airPressurePara.innerHTML = `${day.pressure}&deg;`;
+                    airPressureDiv.appendChild(airPressureHeading);
+                    airPressureDiv.appendChild(airPressureIcon);
+                    airPressureDiv.appendChild(airPressurePara);
+                    parentDiv.appendChild(airPressureDiv);
+                    dailyWeatherDiv.appendChild(parentDiv);
+                }
+            })
+        })
+        .catch(error => console.log(error));
+}
+
 function fetchHourlyWeatherData(lat: string, lon: string) {
+    clearHourlyWeatherData();
     const url = `https://ai-weather-by-meteosource.p.rapidapi.com/hourly?lat=${lat}&lon=${lon}&timezone=auto&language=en&units=auto`;
     fetch(url, {
         method: "GET",
@@ -62,7 +191,10 @@ function fetchHourlyWeatherData(lat: string, lon: string) {
                     const img: HTMLImageElement = document.createElement("img");
                     const temperaturePara: HTMLElement = document.createElement("p");
                     div.classList.add("flex", "flex-col", "justify-between", "items-center", "gap-2");
+                    timePara.classList.add("text-[11px]", "text-center", "font-bold", "md:text-sm");
+                    temperaturePara.classList.add("text-[11px]", "md:text-sm");
                     const d = new Date(item.date);
+
                     timePara.textContent = `${d.getHours() < 10 ? '0' : ''}` + d.getHours().toString() + ':00';
                     img.src = `https://www.meteosource.com/static/img/ico/weather/${item.icon}.svg`
                     temperaturePara.innerHTML = `${item.temperature}&deg;`;
@@ -74,6 +206,7 @@ function fetchHourlyWeatherData(lat: string, lon: string) {
             });
         })
         .catch(error => console.log(error))
+    fetch7DayWeatherData(lat, lon);
 }
 
 function fetchCurrentWeatherData(lat: string, lon: string) {
@@ -98,13 +231,8 @@ function fetchCurrentWeatherData(lat: string, lon: string) {
 }
 
 function fetchWeatherData(lat: string, lon: string) {
-    // console.log(lat, lon)
-    fetchCurrentWeatherData(lat, lon);
-}
 
-function clearAutoCompleteList() {
-    while (autoCompleteList.firstChild) autoCompleteList.removeChild(autoCompleteList.firstChild);
-    autoCompleteList.classList.add("hidden");
+    fetchCurrentWeatherData(lat, lon);
 }
 
 function rendorAutoCompleteList(places: Array<Place>): void {
@@ -143,13 +271,13 @@ themeBtn.addEventListener("click", function (): void {
         htmlTag.classList.remove("dark");
         themeBtn.classList.remove("fa-moon");
         themeBtn.classList.add("fa-sun");
-        themeBtn.setAttribute("title", "switch to light mode");
+        themeBtn.setAttribute("title", "switch to dark mode");
     }
     else {
         htmlTag.classList.add("dark");
         themeBtn.classList.remove("fa-sun");
         themeBtn.classList.add("fa-moon");
-        themeBtn.setAttribute("title", "switch to dark mode");
+        themeBtn.setAttribute("title", "switch to light mode");
     }
 });
 
