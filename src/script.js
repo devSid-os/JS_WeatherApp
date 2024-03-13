@@ -22,7 +22,7 @@ var currentAirPressure = document.querySelector("#currentAirPressure");
 var loading = false;
 var timer;
 var headers = {
-    'X-RapidAPI-Key': '3f1489736emsh7eec37b2c32c379p1aece3jsn609ca33e195e',
+    'X-RapidAPI-Key': 'cae74949d8msh02766bd9c7bbf1dp196f23jsn64d2d289b116',
     'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
 };
 // CUSTOM FUNCTIONS
@@ -221,11 +221,12 @@ function rendorAutoCompleteList(places) {
 }
 function fetchPlaceData() {
     clearAutoCompleteList();
-    var url = "https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=".concat(searchPlaceInput.value, "&language=en");
+    var searchValue = searchPlaceInput.value.split(" ").join("%20");
+    console.log(searchValue);
+    var url = "https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=".concat(searchValue, "&language=en");
     fetch(url, { method: 'GET', headers: headers })
         .then(function (response) { return response.json(); })
         .then(function (data) {
-        // console.log(data)
         if (data.length) {
             rendorAutoCompleteList(data);
         }

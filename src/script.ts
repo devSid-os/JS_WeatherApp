@@ -46,7 +46,7 @@ interface CurrentWeatherData {
 var loading: boolean = false;
 var timer: number;
 const headers = {
-    'X-RapidAPI-Key': '3f1489736emsh7eec37b2c32c379p1aece3jsn609ca33e195e',
+    'X-RapidAPI-Key': 'cae74949d8msh02766bd9c7bbf1dp196f23jsn64d2d289b116',
     'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
 }
 
@@ -260,11 +260,12 @@ function rendorAutoCompleteList(places: Array<Place>): void {
 
 function fetchPlaceData(): void {
     clearAutoCompleteList();
-    const url = `https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=${searchPlaceInput.value}&language=en`;
+    const searchValue = searchPlaceInput.value.split(" ").join("%20");
+    console.log(searchValue)
+    const url = `https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=${searchValue}&language=en`;
     fetch(url, { method: 'GET', headers })
         .then(response => response.json())
         .then((data: Array<Place>) => {
-            // console.log(data)
             if (data.length) {
                 rendorAutoCompleteList(data)
             }
