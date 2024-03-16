@@ -51,9 +51,10 @@ interface CurrentWeatherData {
 }
 
 // CUSTOM VARIABLES
+// c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1
 var timer: number;
 const headers = {
-    'X-RapidAPI-Key': 'c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1',
+    'X-RapidAPI-Key': '07e28121b2msh07e871d66d91487p1014b5jsn971b210805c6',
     'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
 }
 
