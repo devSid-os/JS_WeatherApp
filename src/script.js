@@ -1,3 +1,4 @@
+var _this = this;
 // HTML TAGS
 var themeBtn = document.querySelector("#themeBtn");
 var htmlTag = document.getElementsByTagName("html")[0];
@@ -9,6 +10,10 @@ var hourlyWeatherDiv = document.querySelector("#hourlyWeatherDiv");
 var dailyWeatherDiv = document.querySelector("#dailyWeatherDiv");
 var weatherDataDiv = document.querySelector("#weatherDataDiv");
 var loadingDiv = document.querySelector("#loadingDiv");
+var imgPlaceholderDiv = document.querySelector("#imgPlaceholderDiv");
+var smSearchPlaceInput = document.querySelector("#smSearchPlaceInput");
+var smAutoCompleteList = document.querySelector("#smAutoCompleteList");
+var errorDiv = document.querySelector("#errorDiv");
 // CURRENT WEATHER HTML TAGS
 var currentStatus = document.querySelector("#currentStatus");
 var currentStatusImage = document.querySelector("#currentStatusImage");
@@ -18,11 +23,12 @@ var currentVisibility = document.querySelector("#currentVisibility");
 var currentHumidity = document.querySelector("#currentHumidity");
 var currentWindSpeed = document.querySelector("#currentWindSpeed");
 var currentAirPressure = document.querySelector("#currentAirPressure");
+// NAMAN -> c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1
 // CUSTOM VARIABLES
 var loading = false;
 var timer;
 var headers = {
-    'X-RapidAPI-Key': 'cae74949d8msh02766bd9c7bbf1dp196f23jsn64d2d289b116',
+    'X-RapidAPI-Key': 'c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1',
     'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
 };
 // CUSTOM FUNCTIONS
@@ -30,6 +36,11 @@ function clearAutoCompleteList() {
     while (autoCompleteList.firstChild)
         autoCompleteList.removeChild(autoCompleteList.firstChild);
     autoCompleteList.classList.add("hidden");
+}
+function smClearAutoCompleteList() {
+    while (smAutoCompleteList.firstChild)
+        smAutoCompleteList.removeChild(smAutoCompleteList.firstChild);
+    smAutoCompleteList.classList.add("hidden");
 }
 function clearHourlyWeatherData() {
     while (hourlyWeatherDiv.firstChild)
@@ -45,7 +56,11 @@ function fetch7DayWeatherData(lat, lon) {
         method: 'GET',
         headers: headers
     })
-        .then(function (response) { return response.json(); })
+        .then(function (response) {
+        if (response.status !== 200)
+            throw new Error("An Error Occured while fetching data");
+        return response.json();
+    })
         .then(function (data) {
         data.daily.data.map(function (day, index) {
             if (index < 7) {
@@ -146,9 +161,15 @@ function fetch7DayWeatherData(lat, lon) {
                 parentDiv.appendChild(airPressureDiv);
                 dailyWeatherDiv.appendChild(parentDiv);
                 loading = false;
+                weatherDataDiv.classList.remove("hidden");
             }
         });
-    })["catch"](function (error) { return console.log(error); });
+    })["catch"](function (error) {
+        loading = false;
+        weatherDataDiv.classList.add("hidden");
+        errorDiv.classList.remove("hidden");
+        errorDiv.children[1].textContent = error.message;
+    });
 }
 function fetchHourlyWeatherData(lat, lon) {
     clearHourlyWeatherData();
@@ -158,7 +179,12 @@ function fetchHourlyWeatherData(lat, lon) {
         method: "GET",
         headers: headers
     })
-        .then(function (response) { return response.json(); })
+        .then(function (response) {
+        if (response.status !== 200)
+            throw new Error("An Error Occured while fetching data");
+        else
+            return response.json();
+    })
         .then(function (data) {
         data.hourly.data.map(function (item, index) {
             if (index < 6) {
@@ -179,7 +205,12 @@ function fetchHourlyWeatherData(lat, lon) {
                 hourlyWeatherDiv.appendChild(div);
             }
         });
-    })["catch"](function (error) { return console.log(error); });
+    })["catch"](function (error) {
+        loading = false;
+        weatherDataDiv.classList.add("hidden");
+        errorDiv.classList.remove("hidden");
+        errorDiv.children[1].textContent = error.message;
+    });
     fetch7DayWeatherData(lat, lon);
 }
 function fetchCurrentWeatherData(lat, lon) {
@@ -188,7 +219,12 @@ function fetchCurrentWeatherData(lat, lon) {
         method: "GET",
         headers: headers
     })
-        .then(function (response) { return response.json(); })
+        .then(function (response) {
+        if (response.status !== 200)
+            throw new Error("An Error Occured while fetching data");
+        else
+            return response.json();
+    })
         .then(function (data) {
         currentStatus.textContent = data.current.summary;
         currentStatusImage.src = "https://www.meteosource.com/static/img/ico/weather/".concat(data.current.icon_num, ".svg");
@@ -199,10 +235,17 @@ function fetchCurrentWeatherData(lat, lon) {
         currentWindSpeed.textContent = "".concat(data.current.wind.speed, "km/h");
         currentAirPressure.textContent = "".concat(data.current.pressure, "hPa");
         fetchHourlyWeatherData(lat, lon);
-    })["catch"](function (error) { return console.log(error); });
+    })["catch"](function (error) {
+        loading = false;
+        weatherDataDiv.classList.add("hidden");
+        errorDiv.classList.remove("hidden");
+        errorDiv.children[1].textContent = error.message;
+    });
 }
 function fetchWeatherData(lat, lon) {
+    imgPlaceholderDiv.classList.add("hidden");
     loading = true;
+    weatherDataDiv.classList.add("hidden");
     fetchCurrentWeatherData(lat, lon);
 }
 function rendorAutoCompleteList(places) {
@@ -219,19 +262,45 @@ function rendorAutoCompleteList(places) {
     });
     autoCompleteList.classList.remove("hidden");
 }
+function rendorSmAutoCompleteList(places) {
+    places.map(function (place) {
+        var listItem = document.createElement("li");
+        listItem.classList.add("p-2", "text-[12px]", "dark:text-white", "hover:bg-[blue]", "hover:text-white");
+        listItem.textContent = place.name + " (".concat(place.country, ")");
+        listItem.onclick = function () {
+            smClearAutoCompleteList();
+            placeNameHeading.textContent = place.name + " (".concat(place.country, ")");
+            fetchWeatherData(place.lat, place.lon);
+        };
+        smAutoCompleteList.appendChild(listItem);
+    });
+    smAutoCompleteList.classList.remove("hidden");
+}
 function fetchPlaceData() {
-    clearAutoCompleteList();
+    if (!errorDiv.classList.contains("hidden"))
+        errorDiv.classList.add("hidden");
+    if (window.innerWidth >= 768)
+        clearAutoCompleteList();
+    else
+        smClearAutoCompleteList();
     var searchValue = searchPlaceInput.value.split(" ").join("%20");
-    console.log(searchValue);
+    // console.log(searchValue)
     var url = "https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=".concat(searchValue, "&language=en");
     fetch(url, { method: 'GET', headers: headers })
         .then(function (response) { return response.json(); })
         .then(function (data) {
         if (data.length) {
-            rendorAutoCompleteList(data);
+            if (window.innerWidth >= 768)
+                rendorAutoCompleteList(data);
+            else
+                rendorSmAutoCompleteList(data);
         }
-        else
-            clearAutoCompleteList();
+        else {
+            if (window.innerWidth >= 768)
+                clearAutoCompleteList();
+            else
+                smClearAutoCompleteList();
+        }
     })["catch"](function (error) { return console.log(error); });
 }
 // ADD EVENT LISTENERS
@@ -250,9 +319,22 @@ themeBtn.addEventListener("click", function () {
     }
 });
 searchPlaceInput.addEventListener("keyup", function (e) {
+    smSearchPlaceInput.value = this.value;
     clearTimeout(timer);
     timer = setTimeout(function () {
         if (e.key.length === 1 && (e.key >= 'A' && e.key <= 'Z') || (e.key >= 'a' && e.key <= 'z')) {
+            fetchPlaceData();
+        }
+    }, 400);
+});
+window.addEventListener("resize", function () {
+    console.log(typeof _this.innerWidth);
+});
+smSearchPlaceInput.addEventListener("input", function (e) {
+    searchPlaceInput.value = this.value;
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+        if (e.data && (e.data.length === 1 && (e.data >= 'A' && e.data <= 'Z') || (e.data >= 'a' && e.data <= 'z'))) {
             fetchPlaceData();
         }
     }, 400);
@@ -262,17 +344,18 @@ searchPlaceInput.addEventListener("focus", function () {
         autoCompleteList.classList.remove("hidden");
 });
 window.addEventListener("keyup", function (e) {
-    if (e.key === 'Escape')
+    if (e.key === 'Escape') {
         if (!autoCompleteList.classList.contains("hidden"))
             autoCompleteList.classList.add("hidden");
+        if (!smAutoCompleteList.classList.contains("hidden"))
+            smAutoCompleteList.classList.add("hidden");
+    }
 });
 setInterval(function () {
     if (loading === true) {
-        weatherDataDiv.classList.add("hidden");
         loadingDiv.classList.remove("hidden");
     }
     else {
-        weatherDataDiv.classList.remove("hidden");
         loadingDiv.classList.add("hidden");
     }
 }, 50);

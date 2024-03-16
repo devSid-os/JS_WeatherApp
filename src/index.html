@@ -52,11 +52,11 @@
                 <div class="hidden relative items-stretch md:flex">
                     <input id="searchPlaceInput"
                         class="p-1 px-2 text-sm rounded-tl-sm rounded-bl-sm focus:outline-none border-[1px] border-r-0 border-[#grey] tracking-wider dark:border-none"
-                        type="text" placeholder="Search Place">
+                        type="search" placeholder="Search Place">
                     <button type="button" id="searchBtn" class="rounded-br-sm rounded-tr-sm fa-solid fa-magnifying-glass-location text-sm px-2 bg-[#F6F5F5]
                         k dark:text-black dark:bg-white focus:outline-none"></button>
                     <ul id="autoCompleteList"
-                        class="bg-[#fbfbfb] max-h-[130px] py-2 fle  x flex-col gap-1 overflow-y-auto absolute top-8 left-0 w-full dark:bg-[#1f1f1f] hidden">
+                        class="bg-[#fbfbfb] max-h-[130px] py-2 flex flex-col gap-1 overflow-y-auto absolute top-8 left-0 w-full dark:bg-[#1f1f1f] hidden">
 
                     </ul>
                 </div>
@@ -64,11 +64,41 @@
         </nav>
     </header>
     <!-- MAIN -->
-    <main class="">
+    <main>
+        <!-- SEARCH BAR FOR SMALL SCREENS -->
+        <div
+            class="relative mt-8 w-[95%] ml-auto mr-auto md:hidden flex items-stretch bg-white shadow-md rounded-tl-sm rounded-tr-sm dark:bg-[#1f1f1f]">
+            <input id="smSearchPlaceInput" placeholder="Search Place" type="search"
+                class="bg-transparent p-2 text-sm w-full focus:outline-none dark:text-white">
+            <button type="button"
+                class="fa-solid fa-magnifying-glass-location text-sm px-2 dark:text-white focus:outline-none"></button>
+            <ul id="smAutoCompleteList"
+                class="max-h-[150px] flex flex-col items-stretch overflow-y-auto absolute top-9 w-full bg-white dark:bg-[#1f1f1f] tracking-widest hidden">
+            </ul>
+        </div>
+        <!-- LOADING DIV -->
         <div id="loadingDiv" class="flex justify-center items-center h-[80vh] hidden">
             <p class="text-center tracking-widest dark:text-white">Loading...</p>
         </div>
-        <div id="weatherDataDiv" class="w-full mt-8 px-4 flex flex-col gap-2 md:px-8">
+
+        <!-- Error Div -->
+        <div id="errorDiv" class="flex flex-col justify-center items-center gap-2 h-[80vh] hidden">
+            <img src="error.png" class="object-contain w-1/2 md:w-1/4" alt="">
+            <p class="tracking-widest dark:text-white"></p>
+        </div>
+
+        <!-- SEARCH RESULTS DIV -->
+        <!-- <div class="flex flex-col">
+
+        </div> -->
+
+        <!-- IMAGE PLACE HOLDER FOR STARTING SCREEN -->
+        <div id="imgPlaceholderDiv" class="h-[80vh] flex flex-col items-center justify-center w-full">
+            <img src="alt.png" class="w-1/2 md:w-[20%] object-contain" alt="">
+            <p class="text-center tracking-widest font-bold dark:text-white text-md md:text-lg">Search a Place To Get
+                Weather Forecast</p>
+        </div>
+        <div id="weatherDataDiv" class="w-full mt-8 px-4 flex flex-col gap-2 md:px-8 hidden">
             <!-- CURRENT WEATHER DIV -->
             <div class="flex justify-between items-center tracking-widest ">
                 <h4 id="placeNameHeading" class="font-bold text-sm md:text-[16px] dark:text-white">Delhi (India)</h4>
@@ -115,13 +145,10 @@
             <h4 class="font-bold tracking-widest mt-4 dark:text-white">Hourly Weather</h4>
             <div id="hourlyWeatherDiv"
                 class="p-4 flex justify-between items-stretch gap-12 overflow-x-auto bg-white dark:bg-[#1f1f1f] md:gap-0 md:justify-around dark:text-white">
-
             </div>
             <!-- 7 FORECAST DAYS -->
             <h4 class="font-bold tracking-widest mt-4 dark:text-white">Forecast (7 days)</h4>
-            <div id="dailyWeatherDiv" class="flex flex-col items-stretch justify-between gap-4">
-
-            </div>
+            <div id="dailyWeatherDiv" class="flex flex-col items-stretch justify-between gap-4"></div>
         </div>
     </main>
 

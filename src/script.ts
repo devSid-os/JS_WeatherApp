@@ -9,6 +9,10 @@ const hourlyWeatherDiv: HTMLElement = document.querySelector("#hourlyWeatherDiv"
 const dailyWeatherDiv: HTMLElement = document.querySelector("#dailyWeatherDiv")!;
 const weatherDataDiv: HTMLElement = document.querySelector("#weatherDataDiv")!;
 const loadingDiv: HTMLElement = document.querySelector("#loadingDiv")!;
+const imgPlaceholderDiv: HTMLElement = document.querySelector("#imgPlaceholderDiv")!;
+const smSearchPlaceInput: HTMLInputElement = document.querySelector("#smSearchPlaceInput")!;
+const smAutoCompleteList: HTMLElement = document.querySelector("#smAutoCompleteList")!;
+const errorDiv: HTMLElement = document.querySelector("#errorDiv")!;
 // CURRENT WEATHER HTML TAGS
 const currentStatus: HTMLElement = document.querySelector("#currentStatus")!;
 const currentStatusImage: HTMLImageElement = document.querySelector("#currentStatusImage")!;
@@ -39,14 +43,17 @@ interface CurrentWeatherData {
         },
         pressure: number,
         icon_num: number
-    }
+    },
+    message: string
 }
+
+// NAMAN -> c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1
 
 // CUSTOM VARIABLES
 var loading: boolean = false;
 var timer: number;
 const headers = {
-    'X-RapidAPI-Key': 'cae74949d8msh02766bd9c7bbf1dp196f23jsn64d2d289b116',
+    'X-RapidAPI-Key': 'c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1',
     'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
 }
 
@@ -54,6 +61,11 @@ const headers = {
 function clearAutoCompleteList(): void {
     while (autoCompleteList.firstChild) autoCompleteList.removeChild(autoCompleteList.firstChild);
     autoCompleteList.classList.add("hidden");
+}
+
+function smClearAutoCompleteList(): void {
+    while (smAutoCompleteList.firstChild) smAutoCompleteList.removeChild(smAutoCompleteList.firstChild);
+    smAutoCompleteList.classList.add("hidden");
 }
 
 function clearHourlyWeatherData(): void {
@@ -70,7 +82,10 @@ function fetch7DayWeatherData(lat: string, lon: string): void {
         method: 'GET',
         headers
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status!==200) throw new Error("An Error Occured while fetching data");
+            return response.json()
+        })
         .then(data => {
             data.daily.data.map((day, index: number) => {
                 if (index < 7) {
@@ -176,10 +191,16 @@ function fetch7DayWeatherData(lat: string, lon: string): void {
                     parentDiv.appendChild(airPressureDiv);
                     dailyWeatherDiv.appendChild(parentDiv);
                     loading = false;
+                    weatherDataDiv.classList.remove("hidden");
                 }
             })
         })
-        .catch(error => console.log(error));
+        .catch(error => {
+            loading = false;
+            weatherDataDiv.classList.add("hidden");
+            errorDiv.classList.remove("hidden");
+            errorDiv.children[1].textContent = error.message;
+        });
 }
 
 function fetchHourlyWeatherData(lat: string, lon: string): void {
@@ -190,7 +211,10 @@ function fetchHourlyWeatherData(lat: string, lon: string): void {
         method: "GET",
         headers
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status !== 200) throw new Error("An Error Occured while fetching data");
+            else return response.json();
+        })
         .then(data => {
             data.hourly.data.map((item, index: number) => {
                 if (index < 6) {
@@ -213,7 +237,12 @@ function fetchHourlyWeatherData(lat: string, lon: string): void {
                 }
             });
         })
-        .catch(error => console.log(error))
+        .catch(error => {
+            loading = false;
+            weatherDataDiv.classList.add("hidden");
+            errorDiv.classList.remove("hidden");
+            errorDiv.children[1].textContent = error.message;
+        })
     fetch7DayWeatherData(lat, lon);
 }
 
@@ -223,7 +252,10 @@ function fetchCurrentWeatherData(lat: string, lon: string): void {
         method: "GET",
         headers
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status !== 200) throw new Error("An Error Occured while fetching data");
+            else return response.json()
+        })
         .then((data: CurrentWeatherData) => {
             currentStatus.textContent = data.current.summary;
             currentStatusImage.src = `https://www.meteosource.com/static/img/ico/weather/${data.current.icon_num}.svg`;
@@ -235,11 +267,18 @@ function fetchCurrentWeatherData(lat: string, lon: string): void {
             currentAirPressure.textContent = `${data.current.pressure}hPa`;
             fetchHourlyWeatherData(lat, lon);
         })
-        .catch(error => console.log(error))
+        .catch(error => {
+            loading = false;
+            weatherDataDiv.classList.add("hidden");
+            errorDiv.classList.remove("hidden");
+            errorDiv.children[1].textContent = error.message;
+        })
 }
 
 function fetchWeatherData(lat: string, lon: string): void {
+    imgPlaceholderDiv.classList.add("hidden");
     loading = true;
+    weatherDataDiv.classList.add("hidden");
     fetchCurrentWeatherData(lat, lon);
 }
 
@@ -258,18 +297,39 @@ function rendorAutoCompleteList(places: Array<Place>): void {
     autoCompleteList.classList.remove("hidden");
 }
 
+function rendorSmAutoCompleteList(places: Array<Place>): void {
+    places.map((place: Place) => {
+        const listItem: HTMLElement = document.createElement("li");
+        listItem.classList.add("p-2", "text-[12px]", "dark:text-white", "hover:bg-[blue]", "hover:text-white")
+        listItem.textContent = place.name + ` (${place.country})`;
+        listItem.onclick = () => {
+            smClearAutoCompleteList();
+            placeNameHeading.textContent = place.name + ` (${place.country})`;
+            fetchWeatherData(place.lat, place.lon);
+        }
+        smAutoCompleteList.appendChild(listItem);
+    });
+    smAutoCompleteList.classList.remove("hidden");
+}
+
 function fetchPlaceData(): void {
-    clearAutoCompleteList();
+    if (!errorDiv.classList.contains("hidden")) errorDiv.classList.add("hidden");
+    if (window.innerWidth >= 768) clearAutoCompleteList();
+    else smClearAutoCompleteList();
     const searchValue = searchPlaceInput.value.split(" ").join("%20");
-    console.log(searchValue)
+    // console.log(searchValue)
     const url = `https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=${searchValue}&language=en`;
     fetch(url, { method: 'GET', headers })
         .then(response => response.json())
         .then((data: Array<Place>) => {
             if (data.length) {
-                rendorAutoCompleteList(data)
+                if (window.innerWidth >= 768) rendorAutoCompleteList(data)
+                else rendorSmAutoCompleteList(data);
             }
-            else clearAutoCompleteList();
+            else {
+                if (window.innerWidth >= 768) clearAutoCompleteList();
+                else smClearAutoCompleteList();
+            }
         })
         .catch(error => console.log(error))
 }
@@ -291,30 +351,46 @@ themeBtn.addEventListener("click", function (): void {
 });
 
 searchPlaceInput.addEventListener("keyup", function (e: KeyboardEvent): void {
+    smSearchPlaceInput.value = this.value;
     clearTimeout(timer);
     timer = setTimeout(() => {
         if (e.key.length === 1 && (e.key >= 'A' && e.key <= 'Z') || (e.key >= 'a' && e.key <= 'z')) {
             fetchPlaceData();
         }
     }, 400);
+});
+
+window.addEventListener("resize", () => {
+    console.log(typeof this.innerWidth)
 })
+
+smSearchPlaceInput.addEventListener("input", function (e: InputEventInit): void {
+    searchPlaceInput.value = this.value;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+        if (e.data && (e.data.length === 1 && (e.data >= 'A' && e.data <= 'Z') || (e.data >= 'a' && e.data <= 'z'))) {
+            fetchPlaceData();
+        }
+    }, 400);
+});
+
 
 searchPlaceInput.addEventListener("focus", function (): void {
     if (autoCompleteList.children.length > 0) autoCompleteList.classList.remove("hidden");
-})
+});
 
 window.addEventListener("keyup", function (e: KeyboardEvent): void {
-    if (e.key === 'Escape')
+    if (e.key === 'Escape') {
         if (!autoCompleteList.classList.contains("hidden")) autoCompleteList.classList.add("hidden");
-})
+        if (!smAutoCompleteList.classList.contains("hidden")) smAutoCompleteList.classList.add("hidden");
+    }
+});
 
 setInterval((): void => {
     if (loading === true) {
-        weatherDataDiv.classList.add("hidden");
         loadingDiv.classList.remove("hidden");
     }
     else {
-        weatherDataDiv.classList.remove("hidden");
         loadingDiv.classList.add("hidden");
     }
-}, 50)
+}, 50);
