@@ -1,9 +1,9 @@
-var _this = this;
 // HTML TAGS
 var themeBtn = document.querySelector("#themeBtn");
 var htmlTag = document.getElementsByTagName("html")[0];
 var searchPlaceInput = document.querySelector("#searchPlaceInput");
 var searchBtn = document.querySelector("#searchBtn");
+var smSearchBtn = document.querySelector("#smSearchBtn");
 var autoCompleteList = document.querySelector("#autoCompleteList");
 var placeNameHeading = document.querySelector("#placeNameHeading");
 var hourlyWeatherDiv = document.querySelector("#hourlyWeatherDiv");
@@ -14,6 +14,7 @@ var imgPlaceholderDiv = document.querySelector("#imgPlaceholderDiv");
 var smSearchPlaceInput = document.querySelector("#smSearchPlaceInput");
 var smAutoCompleteList = document.querySelector("#smAutoCompleteList");
 var errorDiv = document.querySelector("#errorDiv");
+var searchResultDiv = document.querySelector("#searchResultDiv");
 // CURRENT WEATHER HTML TAGS
 var currentStatus = document.querySelector("#currentStatus");
 var currentStatusImage = document.querySelector("#currentStatusImage");
@@ -23,15 +24,18 @@ var currentVisibility = document.querySelector("#currentVisibility");
 var currentHumidity = document.querySelector("#currentHumidity");
 var currentWindSpeed = document.querySelector("#currentWindSpeed");
 var currentAirPressure = document.querySelector("#currentAirPressure");
-// NAMAN -> c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1
 // CUSTOM VARIABLES
-var loading = false;
 var timer;
 var headers = {
     'X-RapidAPI-Key': 'c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1',
     'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
 };
 // CUSTOM FUNCTIONS
+function clearSearchResultDiv() {
+    while (searchResultDiv.firstChild)
+        searchResultDiv.removeChild(searchResultDiv.firstChild);
+    searchResultDiv.classList.add("hidden");
+}
 function clearAutoCompleteList() {
     while (autoCompleteList.firstChild)
         autoCompleteList.removeChild(autoCompleteList.firstChild);
@@ -63,7 +67,7 @@ function fetch7DayWeatherData(lat, lon) {
     })
         .then(function (data) {
         data.daily.data.map(function (day, index) {
-            if (index < 7) {
+            if (index > 0 && index < 8) {
                 var parentDiv = document.createElement("div");
                 var statusDiv = document.createElement("div");
                 var statusImg = document.createElement("img");
@@ -160,20 +164,18 @@ function fetch7DayWeatherData(lat, lon) {
                 airPressureDiv.appendChild(airPressurePara);
                 parentDiv.appendChild(airPressureDiv);
                 dailyWeatherDiv.appendChild(parentDiv);
-                loading = false;
+                loadingDiv.classList.add("hidden");
                 weatherDataDiv.classList.remove("hidden");
             }
         });
     })["catch"](function (error) {
-        loading = false;
         weatherDataDiv.classList.add("hidden");
+        loadingDiv.classList.add("hidden");
         errorDiv.classList.remove("hidden");
         errorDiv.children[1].textContent = error.message;
     });
 }
 function fetchHourlyWeatherData(lat, lon) {
-    clearHourlyWeatherData();
-    clear7DayWeatherData();
     var url = "https://ai-weather-by-meteosource.p.rapidapi.com/hourly?lat=".concat(lat, "&lon=").concat(lon, "&timezone=auto&language=en&units=auto");
     fetch(url, {
         method: "GET",
@@ -206,8 +208,8 @@ function fetchHourlyWeatherData(lat, lon) {
             }
         });
     })["catch"](function (error) {
-        loading = false;
         weatherDataDiv.classList.add("hidden");
+        loadingDiv.classList.add("hidden");
         errorDiv.classList.remove("hidden");
         errorDiv.children[1].textContent = error.message;
     });
@@ -236,16 +238,20 @@ function fetchCurrentWeatherData(lat, lon) {
         currentAirPressure.textContent = "".concat(data.current.pressure, "hPa");
         fetchHourlyWeatherData(lat, lon);
     })["catch"](function (error) {
-        loading = false;
         weatherDataDiv.classList.add("hidden");
+        loadingDiv.classList.add("hidden");
         errorDiv.classList.remove("hidden");
         errorDiv.children[1].textContent = error.message;
     });
 }
 function fetchWeatherData(lat, lon) {
+    clearHourlyWeatherData();
+    clear7DayWeatherData();
+    clearSearchResultDiv();
     imgPlaceholderDiv.classList.add("hidden");
-    loading = true;
     weatherDataDiv.classList.add("hidden");
+    errorDiv.classList.add("hidden");
+    loadingDiv.classList.remove("hidden");
     fetchCurrentWeatherData(lat, lon);
 }
 function rendorAutoCompleteList(places) {
@@ -284,7 +290,6 @@ function fetchPlaceData() {
     else
         smClearAutoCompleteList();
     var searchValue = searchPlaceInput.value.split(" ").join("%20");
-    // console.log(searchValue)
     var url = "https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=".concat(searchValue, "&language=en");
     fetch(url, { method: 'GET', headers: headers })
         .then(function (response) { return response.json(); })
@@ -302,6 +307,77 @@ function fetchPlaceData() {
                 smClearAutoCompleteList();
         }
     })["catch"](function (error) { return console.log(error); });
+}
+function searchPlaceManually() {
+    weatherDataDiv.classList.add("add");
+    clearSearchResultDiv();
+    imgPlaceholderDiv.classList.add("hidden");
+    var searchValue = searchPlaceInput.value.split(" ").join("%20");
+    var url = "https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=".concat(searchValue, "&language=en");
+    fetch(url, {
+        method: 'GET',
+        headers: headers
+    })
+        .then(function (response) {
+        if (response.status !== 200)
+            throw new Error("An Error Occured While Fetching Data");
+        return response.json();
+    })
+        .then(function (data) {
+        if (data.length > 0) {
+            var para = document.createElement("p");
+            para.textContent = "Search Results for \"";
+            var span = document.createElement("span");
+            span.textContent = searchPlaceInput.value;
+            span.classList.add("font-bold");
+            para.appendChild(span);
+            para.textContent += '"';
+            searchResultDiv.appendChild(para);
+            searchResultDiv.classList.remove("hidden");
+            data.map(function (place) {
+                var div = document.createElement("div");
+                div.classList.add("flex", "flex-col", "text-sm", "gap-2", "p-4", "cursor-pointer", "bg-white", "rounded-sm", "dark:bg-[#1f1f1f]");
+                var divPara1 = document.createElement("p");
+                var para1Span = document.createElement("span");
+                para1Span.classList.add("font-bold");
+                para1Span.textContent = "Location: ";
+                divPara1.appendChild(para1Span);
+                divPara1.textContent += (place.name + "(".concat(place.country, ")"));
+                div.appendChild(divPara1);
+                if (place.adm_area1) {
+                    var divPara2 = document.createElement("p");
+                    var para2Span = document.createElement("span");
+                    para2Span.textContent = "Area: ";
+                    para2Span.classList.add("font-bold");
+                    divPara2.appendChild(para2Span);
+                    divPara2.textContent += place.adm_area1;
+                    div.appendChild(divPara2);
+                }
+                div.onclick = function () {
+                    placeNameHeading.textContent = place.name + " (".concat(place.country, ")");
+                    fetchWeatherData(place.lat, place.lon);
+                };
+                searchResultDiv.appendChild(div);
+            });
+        }
+        else {
+            var para = document.createElement("p");
+            para.textContent = "No Results found for \"";
+            var span = document.createElement("span");
+            span.textContent = searchPlaceInput.value;
+            span.classList.add("font-bold");
+            para.appendChild(span);
+            para.textContent += "\"";
+            searchResultDiv.appendChild(para);
+            searchResultDiv.classList.remove("hidden");
+        }
+    })["catch"](function (error) {
+        searchResultDiv.classList.add("hidden");
+        weatherDataDiv.classList.add("hidden");
+        loadingDiv.classList.add("hidden");
+        errorDiv.classList.remove("hidden");
+        errorDiv.children[1].textContent = error.message;
+    });
 }
 // ADD EVENT LISTENERS
 themeBtn.addEventListener("click", function () {
@@ -327,9 +403,6 @@ searchPlaceInput.addEventListener("keyup", function (e) {
         }
     }, 400);
 });
-window.addEventListener("resize", function () {
-    console.log(typeof _this.innerWidth);
-});
 smSearchPlaceInput.addEventListener("input", function (e) {
     searchPlaceInput.value = this.value;
     clearTimeout(timer);
@@ -343,6 +416,30 @@ searchPlaceInput.addEventListener("focus", function () {
     if (autoCompleteList.children.length > 0)
         autoCompleteList.classList.remove("hidden");
 });
+searchBtn.addEventListener("click", function () {
+    weatherDataDiv.classList.add("hidden");
+    if (window.innerWidth >= 768) {
+        if (!autoCompleteList.classList.contains("hidden"))
+            autoCompleteList.classList.add("hidden");
+    }
+    else {
+        if (!smAutoCompleteList.classList.contains("hidden"))
+            smAutoCompleteList.classList.add("hidden");
+    }
+    searchPlaceManually();
+});
+smSearchBtn.addEventListener("click", function () {
+    weatherDataDiv.classList.add("hidden");
+    if (window.innerWidth >= 768) {
+        if (!autoCompleteList.classList.contains("hidden"))
+            autoCompleteList.classList.add("hidden");
+    }
+    else {
+        if (!smAutoCompleteList.classList.contains("hidden"))
+            smAutoCompleteList.classList.add("hidden");
+    }
+    searchPlaceManually();
+});
 window.addEventListener("keyup", function (e) {
     if (e.key === 'Escape') {
         if (!autoCompleteList.classList.contains("hidden"))
@@ -351,11 +448,3 @@ window.addEventListener("keyup", function (e) {
             smAutoCompleteList.classList.add("hidden");
     }
 });
-setInterval(function () {
-    if (loading === true) {
-        loadingDiv.classList.remove("hidden");
-    }
-    else {
-        loadingDiv.classList.add("hidden");
-    }
-}, 50);

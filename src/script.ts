@@ -3,6 +3,7 @@ const themeBtn: HTMLElement = document.querySelector("#themeBtn")!;
 const htmlTag: HTMLElement = document.getElementsByTagName("html")[0];
 const searchPlaceInput: HTMLInputElement = document.querySelector("#searchPlaceInput")!;
 const searchBtn: HTMLElement = document.querySelector("#searchBtn")!;
+const smSearchBtn: HTMLElement = document.querySelector("#smSearchBtn")!;
 const autoCompleteList: HTMLElement = document.querySelector("#autoCompleteList")!;
 const placeNameHeading: HTMLElement = document.querySelector("#placeNameHeading")!;
 const hourlyWeatherDiv: HTMLElement = document.querySelector("#hourlyWeatherDiv")!;
@@ -13,6 +14,7 @@ const imgPlaceholderDiv: HTMLElement = document.querySelector("#imgPlaceholderDi
 const smSearchPlaceInput: HTMLInputElement = document.querySelector("#smSearchPlaceInput")!;
 const smAutoCompleteList: HTMLElement = document.querySelector("#smAutoCompleteList")!;
 const errorDiv: HTMLElement = document.querySelector("#errorDiv")!;
+const searchResultDiv: HTMLElement = document.querySelector("#searchResultDiv")!;
 // CURRENT WEATHER HTML TAGS
 const currentStatus: HTMLElement = document.querySelector("#currentStatus")!;
 const currentStatusImage: HTMLImageElement = document.querySelector("#currentStatusImage")!;
@@ -28,7 +30,8 @@ interface Place {
     name: string,
     country: string,
     lat: string,
-    lon: string
+    lon: string,
+    adm_area1: string | null
 }
 
 interface CurrentWeatherData {
@@ -47,10 +50,7 @@ interface CurrentWeatherData {
     message: string
 }
 
-// NAMAN -> c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1
-
 // CUSTOM VARIABLES
-var loading: boolean = false;
 var timer: number;
 const headers = {
     'X-RapidAPI-Key': 'c9739e568amshff3d1b6bdced7f8p1457b4jsncda082b8b2f1',
@@ -58,6 +58,11 @@ const headers = {
 }
 
 // CUSTOM FUNCTIONS
+function clearSearchResultDiv(): void {
+    while (searchResultDiv.firstChild) searchResultDiv.removeChild(searchResultDiv.firstChild);
+    searchResultDiv.classList.add("hidden");
+}
+
 function clearAutoCompleteList(): void {
     while (autoCompleteList.firstChild) autoCompleteList.removeChild(autoCompleteList.firstChild);
     autoCompleteList.classList.add("hidden");
@@ -77,18 +82,18 @@ function clear7DayWeatherData(): void {
 }
 
 function fetch7DayWeatherData(lat: string, lon: string): void {
-    const url = `https://ai-weather-by-meteosource.p.rapidapi.com/daily?lat=${lat}&lon=${lon}&language=en&units=auto`;
+    const url: string = `https://ai-weather-by-meteosource.p.rapidapi.com/daily?lat=${lat}&lon=${lon}&language=en&units=auto`;
     fetch(url, {
         method: 'GET',
         headers
     })
         .then(response => {
-            if (response.status!==200) throw new Error("An Error Occured while fetching data");
+            if (response.status !== 200) throw new Error("An Error Occured while fetching data");
             return response.json()
         })
         .then(data => {
             data.daily.data.map((day, index: number) => {
-                if (index < 7) {
+                if (index > 0 && index < 8) {
                     const parentDiv: HTMLElement = document.createElement("div");
                     const statusDiv: HTMLElement = document.createElement("div");
                     const statusImg: HTMLImageElement = document.createElement("img");
@@ -190,23 +195,21 @@ function fetch7DayWeatherData(lat: string, lon: string): void {
                     airPressureDiv.appendChild(airPressurePara);
                     parentDiv.appendChild(airPressureDiv);
                     dailyWeatherDiv.appendChild(parentDiv);
-                    loading = false;
+                    loadingDiv.classList.add("hidden");
                     weatherDataDiv.classList.remove("hidden");
                 }
             })
         })
         .catch(error => {
-            loading = false;
             weatherDataDiv.classList.add("hidden");
+            loadingDiv.classList.add("hidden");
             errorDiv.classList.remove("hidden");
             errorDiv.children[1].textContent = error.message;
         });
 }
 
 function fetchHourlyWeatherData(lat: string, lon: string): void {
-    clearHourlyWeatherData();
-    clear7DayWeatherData();
-    const url = `https://ai-weather-by-meteosource.p.rapidapi.com/hourly?lat=${lat}&lon=${lon}&timezone=auto&language=en&units=auto`;
+    const url: string = `https://ai-weather-by-meteosource.p.rapidapi.com/hourly?lat=${lat}&lon=${lon}&timezone=auto&language=en&units=auto`;
     fetch(url, {
         method: "GET",
         headers
@@ -238,16 +241,16 @@ function fetchHourlyWeatherData(lat: string, lon: string): void {
             });
         })
         .catch(error => {
-            loading = false;
             weatherDataDiv.classList.add("hidden");
+            loadingDiv.classList.add("hidden");
             errorDiv.classList.remove("hidden");
             errorDiv.children[1].textContent = error.message;
-        })
+        });
     fetch7DayWeatherData(lat, lon);
 }
 
 function fetchCurrentWeatherData(lat: string, lon: string): void {
-    const url = `https://ai-weather-by-meteosource.p.rapidapi.com/current?lat=${lat}&lon=${lon}&timezone=auto&language=en&units=auto`;
+    const url: string = `https://ai-weather-by-meteosource.p.rapidapi.com/current?lat=${lat}&lon=${lon}&timezone=auto&language=en&units=auto`;
     fetch(url, {
         method: "GET",
         headers
@@ -268,17 +271,21 @@ function fetchCurrentWeatherData(lat: string, lon: string): void {
             fetchHourlyWeatherData(lat, lon);
         })
         .catch(error => {
-            loading = false;
             weatherDataDiv.classList.add("hidden");
+            loadingDiv.classList.add("hidden");
             errorDiv.classList.remove("hidden");
             errorDiv.children[1].textContent = error.message;
         })
 }
 
 function fetchWeatherData(lat: string, lon: string): void {
+    clearHourlyWeatherData();
+    clear7DayWeatherData();
+    clearSearchResultDiv();
     imgPlaceholderDiv.classList.add("hidden");
-    loading = true;
     weatherDataDiv.classList.add("hidden");
+    errorDiv.classList.add("hidden");
+    loadingDiv.classList.remove("hidden");
     fetchCurrentWeatherData(lat, lon);
 }
 
@@ -316,9 +323,8 @@ function fetchPlaceData(): void {
     if (!errorDiv.classList.contains("hidden")) errorDiv.classList.add("hidden");
     if (window.innerWidth >= 768) clearAutoCompleteList();
     else smClearAutoCompleteList();
-    const searchValue = searchPlaceInput.value.split(" ").join("%20");
-    // console.log(searchValue)
-    const url = `https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=${searchValue}&language=en`;
+    const searchValue: string = searchPlaceInput.value.split(" ").join("%20");
+    const url: string = `https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=${searchValue}&language=en`;
     fetch(url, { method: 'GET', headers })
         .then(response => response.json())
         .then((data: Array<Place>) => {
@@ -332,6 +338,79 @@ function fetchPlaceData(): void {
             }
         })
         .catch(error => console.log(error))
+}
+
+function searchPlaceManually() {
+    weatherDataDiv.classList.add("add");
+    clearSearchResultDiv();
+    imgPlaceholderDiv.classList.add("hidden");
+    const searchValue: string = searchPlaceInput.value.split(" ").join("%20");
+    const url: string = `https://ai-weather-by-meteosource.p.rapidapi.com/find_places?text=${searchValue}&language=en`;
+    fetch(url, {
+        method: 'GET',
+        headers
+    })
+        .then(response => {
+            if (response.status !== 200) throw new Error("An Error Occured While Fetching Data");
+            return response.json()
+        })
+        .then(data => {
+            if (data.length > 0) {
+                const para: HTMLParagraphElement = document.createElement("p");
+                para.textContent = `Search Results for "`;
+                const span: HTMLSpanElement = document.createElement("span");
+                span.textContent = searchPlaceInput.value;
+                span.classList.add("font-bold");
+                para.appendChild(span);
+                para.textContent += '"';
+                searchResultDiv.appendChild(para);
+                searchResultDiv.classList.remove("hidden");
+                data.map((place: Place) => {
+                    const div: HTMLDivElement = document.createElement("div");
+                    div.classList.add("flex", "flex-col", "text-sm", "gap-2", "p-4", "cursor-pointer", "bg-white", "rounded-sm", "dark:bg-[#1f1f1f]");
+                    const divPara1: HTMLParagraphElement = document.createElement("p");
+                    const para1Span: HTMLSpanElement = document.createElement("span");
+                    para1Span.classList.add("font-bold");
+                    para1Span.textContent = `Location: `;
+                    divPara1.appendChild(para1Span);
+                    divPara1.textContent += (place.name + `(${place.country})`);
+                    div.appendChild(divPara1);
+                    if (place.adm_area1) {
+                        const divPara2: HTMLElement = document.createElement("p");
+                        const para2Span: HTMLSpanElement = document.createElement("span");
+                        para2Span.textContent = "Area: ";
+                        para2Span.classList.add("font-bold");
+                        divPara2.appendChild(para2Span);
+                        divPara2.textContent += place.adm_area1;
+                        div.appendChild(divPara2);
+                    }
+                    div.onclick = function (): void {
+                        placeNameHeading.textContent = place.name + ` (${place.country})`;
+                        fetchWeatherData(place.lat, place.lon);
+                    }
+                    searchResultDiv.appendChild(div);
+                })
+
+            }
+            else {
+                const para: HTMLParagraphElement = document.createElement("p");
+                para.textContent = "No Results found for \"";
+                const span: HTMLSpanElement = document.createElement("span");
+                span.textContent = searchPlaceInput.value;
+                span.classList.add("font-bold");
+                para.appendChild(span);
+                para.textContent += "\"";
+                searchResultDiv.appendChild(para);
+                searchResultDiv.classList.remove("hidden");
+            }
+        })
+        .catch(error => {
+            searchResultDiv.classList.add("hidden");
+            weatherDataDiv.classList.add("hidden");
+            loadingDiv.classList.add("hidden");
+            errorDiv.classList.remove("hidden");
+            errorDiv.children[1].textContent = error.message;
+        });
 }
 
 // ADD EVENT LISTENERS
@@ -360,10 +439,6 @@ searchPlaceInput.addEventListener("keyup", function (e: KeyboardEvent): void {
     }, 400);
 });
 
-window.addEventListener("resize", () => {
-    console.log(typeof this.innerWidth)
-})
-
 smSearchPlaceInput.addEventListener("input", function (e: InputEventInit): void {
     searchPlaceInput.value = this.value;
     clearTimeout(timer);
@@ -379,18 +454,31 @@ searchPlaceInput.addEventListener("focus", function (): void {
     if (autoCompleteList.children.length > 0) autoCompleteList.classList.remove("hidden");
 });
 
+searchBtn.addEventListener("click", () => {
+    weatherDataDiv.classList.add("hidden");
+    if (window.innerWidth >= 768) {
+        if (!autoCompleteList.classList.contains("hidden")) autoCompleteList.classList.add("hidden");
+    }
+    else {
+        if (!smAutoCompleteList.classList.contains("hidden")) smAutoCompleteList.classList.add("hidden");
+    }
+    searchPlaceManually();
+});
+
+smSearchBtn.addEventListener("click", () => {
+    weatherDataDiv.classList.add("hidden");
+    if (window.innerWidth >= 768) {
+        if (!autoCompleteList.classList.contains("hidden")) autoCompleteList.classList.add("hidden");
+    }
+    else {
+        if (!smAutoCompleteList.classList.contains("hidden")) smAutoCompleteList.classList.add("hidden");
+    }
+    searchPlaceManually();
+})
+
 window.addEventListener("keyup", function (e: KeyboardEvent): void {
     if (e.key === 'Escape') {
         if (!autoCompleteList.classList.contains("hidden")) autoCompleteList.classList.add("hidden");
         if (!smAutoCompleteList.classList.contains("hidden")) smAutoCompleteList.classList.add("hidden");
     }
 });
-
-setInterval((): void => {
-    if (loading === true) {
-        loadingDiv.classList.remove("hidden");
-    }
-    else {
-        loadingDiv.classList.add("hidden");
-    }
-}, 50);

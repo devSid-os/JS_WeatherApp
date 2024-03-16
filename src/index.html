@@ -70,7 +70,7 @@
             class="relative mt-8 w-[95%] ml-auto mr-auto md:hidden flex items-stretch bg-white shadow-md rounded-tl-sm rounded-tr-sm dark:bg-[#1f1f1f]">
             <input id="smSearchPlaceInput" placeholder="Search Place" type="search"
                 class="bg-transparent p-2 text-sm w-full focus:outline-none dark:text-white">
-            <button type="button"
+            <button id="smSearchBtn" type="button"
                 class="fa-solid fa-magnifying-glass-location text-sm px-2 dark:text-white focus:outline-none"></button>
             <ul id="smAutoCompleteList"
                 class="max-h-[150px] flex flex-col items-stretch overflow-y-auto absolute top-9 w-full bg-white dark:bg-[#1f1f1f] tracking-widest hidden">
@@ -88,9 +88,10 @@
         </div>
 
         <!-- SEARCH RESULTS DIV -->
-        <!-- <div class="flex flex-col">
-
-        </div> -->
+        <div id="searchResultDiv"
+            class="mt-8 px-4 flex flex-col items-stretch gap-4 tracking-widest md:gap-4 dark:text-white hidden">
+            
+        </div>
 
         <!-- IMAGE PLACE HOLDER FOR STARTING SCREEN -->
         <div id="imgPlaceholderDiv" class="h-[80vh] flex flex-col items-center justify-center w-full">
