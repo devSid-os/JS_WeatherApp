@@ -16,6 +16,7 @@ var smAutoCompleteList = document.querySelector("#smAutoCompleteList");
 var errorDiv = document.querySelector("#errorDiv");
 var searchResultDiv = document.querySelector("#searchResultDiv");
 // CURRENT WEATHER HTML TAGS
+var currentDate = document.querySelector("#currentDate");
 var currentStatus = document.querySelector("#currentStatus");
 var currentStatusImage = document.querySelector("#currentStatusImage");
 var currentFeelsLike = document.querySelector("#currentFeelsLike");
@@ -79,7 +80,7 @@ function fetch7DayWeatherData(lat, lon) {
                 statusImg.src = "https://www.meteosource.com/static/img/ico/weather/".concat(day.icon, ".svg");
                 statusFeelsLikePara.innerHTML = "Feels Like ".concat(day.feels_like, "&deg;");
                 var d = new Date(day.day);
-                statusDatePara.textContent = "".concat(d.getDate() < 10 ? '0' : '').concat(d.getDate().toString(), "-").concat(d.getMonth() < 10 ? '0' : '').concat(d.getMonth(), "-").concat(d.getFullYear());
+                statusDatePara.textContent = "".concat(d.getDate() < 10 ? '0' : '').concat(d.getDate().toString(), "-").concat(d.getMonth() < 10 ? '0' : '').concat(d.getMonth() + 1, "-").concat(d.getFullYear());
                 statusFeelsLikePara.classList.add("text-[10px]", "md:text-sm");
                 statusDatePara.classList.add("text-[10px]", "md:text-sm");
                 statusDiv.appendChild(statusImg);
@@ -229,6 +230,8 @@ function fetchCurrentWeatherData(lat, lon) {
             return response.json();
     })
         .then(function (data) {
+        var d = new Date();
+        currentDate.textContent = "".concat(d.getDate(), "/").concat(d.getMonth() + 1, "/").concat(d.getFullYear());
         currentStatus.textContent = data.current.summary;
         currentStatusImage.src = "https://www.meteosource.com/static/img/ico/weather/".concat(data.current.icon_num, ".svg");
         currentFeelsLike.innerHTML = "Feels Like: ".concat(data.current.feels_like, "&deg;");

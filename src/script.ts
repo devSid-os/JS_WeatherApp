@@ -16,6 +16,7 @@ const smAutoCompleteList: HTMLElement = document.querySelector("#smAutoCompleteL
 const errorDiv: HTMLElement = document.querySelector("#errorDiv")!;
 const searchResultDiv: HTMLElement = document.querySelector("#searchResultDiv")!;
 // CURRENT WEATHER HTML TAGS
+const currentDate: HTMLElement = document.querySelector("#currentDate")!;
 const currentStatus: HTMLElement = document.querySelector("#currentStatus")!;
 const currentStatusImage: HTMLImageElement = document.querySelector("#currentStatusImage")!;
 const currentFeelsLike: HTMLElement = document.querySelector("#currentFeelsLike")!;
@@ -105,7 +106,7 @@ function fetch7DayWeatherData(lat: string, lon: string): void {
                     statusImg.src = `https://www.meteosource.com/static/img/ico/weather/${day.icon}.svg`;
                     statusFeelsLikePara.innerHTML = `Feels Like ${day.feels_like}&deg;`;
                     const d = new Date(day.day);
-                    statusDatePara.textContent = `${d.getDate() < 10 ? '0' : ''}${d.getDate().toString()}-${d.getMonth() < 10 ? '0' : ''}${d.getMonth()}-${d.getFullYear()}`;
+                    statusDatePara.textContent = `${d.getDate() < 10 ? '0' : ''}${d.getDate().toString()}-${d.getMonth() < 10 ? '0' : ''}${d.getMonth()+1}-${d.getFullYear()}`;
                     statusFeelsLikePara.classList.add("text-[10px]", "md:text-sm");
                     statusDatePara.classList.add("text-[10px]", "md:text-sm");
                     statusDiv.appendChild(statusImg);
@@ -261,7 +262,9 @@ function fetchCurrentWeatherData(lat: string, lon: string): void {
             else return response.json()
         })
         .then((data: CurrentWeatherData) => {
-            currentStatus.textContent = data.current.summary;
+            const d: Date = new Date();
+            currentDate.textContent = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+                currentStatus.textContent = data.current.summary;
             currentStatusImage.src = `https://www.meteosource.com/static/img/ico/weather/${data.current.icon_num}.svg`;
             currentFeelsLike.innerHTML = `Feels Like: ${data.current.feels_like}&deg;`;
             currentTemperature.innerHTML = `${data.current.temperature}&deg;`;
